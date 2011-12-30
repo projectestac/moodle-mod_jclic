@@ -51,7 +51,6 @@ defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
 
-/***************************** remove these comment marks and modify the code as needed
     'mod/jclic:view' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
@@ -60,7 +59,7 @@ $capabilities = array(
             'student' => CAP_ALLOW,
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-            'admin' => CAP_ALLOW
+            'manager' => CAP_ALLOW
         )
     ),
 
@@ -72,6 +71,18 @@ $capabilities = array(
             'student' => CAP_ALLOW
         )
     ),
-******************************/
-);
 
+    'mod/jclic:grade' => array(
+        'riskbitmask' => RISK_XSS,
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
+    ),
+
+    
+);

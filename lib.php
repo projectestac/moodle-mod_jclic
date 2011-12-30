@@ -33,8 +33,16 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-/** example constant */
-//define('jclic_ULTIMATE_ANSWER', 42);
+define('JCLIC_DEFAULT_PLUGINJS', 'http://clic.xtec.cat/dist/jclic/jclicplugin.js');
+define('JCLIC_DEFAULT_LAP', 5);
+
+if (!isset($CFG->jclic_jclicpluginjs)) {
+    set_config('jclic_jclicpluginjs', JCLIC_DEFAULT_PLUGINJS);
+}
+if (!isset($CFG->jclic_lap)) {
+    set_config("jclic_lap", "5");
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Moodle core API                                                            //
@@ -68,12 +76,16 @@ function jclic_supports($feature) {
  */
 function jclic_add_instance(stdClass $jclic, mod_jclic_mod_form $mform = null) {
     global $DB;
-
+    $cmid = $jclic->coursemodule;
     $jclic->timecreated = time();
+    $jclic->url = trim($jclic->url);
+    if ($jclic->skin=='') $jclic->skin = "default";
 
-    # You may have to add extra stuff in here #
-
-    return $DB->insert_record('jclic', $jclic);
+    $jclic->id = $DB->insert_record('jclic', $jclic);
+    // we need to use context now, so we need to make sure all needed info is already in db
+    $DB->set_field('course_modules', 'instance', $jclic->id, array('id'=>$cmid));
+    jclic_set_mainfile($jclic);
+    return $jclic->id;    
 }
 
 /**
@@ -92,10 +104,13 @@ function jclic_update_instance(stdClass $jclic, mod_jclic_mod_form $mform = null
 
     $jclic->timemodified = time();
     $jclic->id = $jclic->instance;
+    $jclic->url = trim($jclic->url);
 
-    # You may have to add extra stuff in here #
-
-    return $DB->update_record('jclic', $jclic);
+    $result = $DB->update_record('jclic', $jclic);
+    if ($result){
+        jclic_set_mainfile($jclic);    
+    }
+    return $result;
 }
 
 /**
@@ -345,8 +360,38 @@ function jclic_pluginfile($course, $cm, $context, $filearea, array $args, $force
     }
 
     require_login($course, true, $cm);
+    
+    if (!has_capability('mod/jclic:view', $context)) {
+        return false;
+    }
 
-    send_file_not_found();
+    if ($filearea !== 'content') {
+        // intro is handled automatically in pluginfile.php
+        return false;
+    }
+
+    array_shift($args); // ignore revision - designed to prevent caching problems only
+
+    $fs = get_file_storage();
+    $relativepath = implode('/', $args);
+    $fullpath = rtrim("/$context->id/mod_jclic/$filearea/0/$relativepath", '/');
+    do {
+        if ($file = $fs->get_file_by_hash(sha1($fullpath))) {
+            break;
+        }
+/*            
+            $jclic = $DB->get_record('jclic', array('id'=>$cm->instance), 'id, legacyfiles', MUST_EXIST);
+            if (!$file = jcliclib_try_file_migration('/'.$relativepath, $cm->id, $cm->course, 'mod_jclic', 'content', 0)) {
+                return false;
+            }
+            // file migrate - update flag
+            $resource->legacyfileslast = time();
+            $DB->update_record('resource', $resource); 
+ */
+    } while (false);
+
+    // finally send the file
+    send_stored_file($file, 86400, 0, $forcedownload);    
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -31,6 +31,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
+require_once('locallib.php');
 
 /**
  * Module instance settings form
@@ -41,7 +42,8 @@ class mod_jclic_mod_form extends moodleform_mod {
      * Defines forms elements
      */
     public function definition() {
-
+        global $CFG;
+        
         $mform = $this->_form;
 
         //-------------------------------------------------------------------------------
@@ -49,7 +51,7 @@ class mod_jclic_mod_form extends moodleform_mod {
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         // Adding the standard "name" field
-        $mform->addElement('text', 'name', get_string('jclicname', 'jclic'), array('size'=>'64'));
+        $mform->addElement('text', 'name', get_string('name'), array('size'=>'64'));
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
         } else {
@@ -57,19 +59,82 @@ class mod_jclic_mod_form extends moodleform_mod {
         }
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-        $mform->addHelpButton('name', 'jclicname', 'jclic');
-
+        //$mform->addHelpButton('name', 'name', 'jclic');
+        
         // Adding the standard "intro" and "introformat" fields
         $this->add_intro_editor();
-
+        
+/*
+        $mform->addElement('htmleditor', 'description', get_string('description'));
+        $mform->setType('description', PARAM_RAW);
+        $mform->setHelpButton('description', array('writing', 'questions', 'text'), false, 'editorhelpbutton');
+*/
+        
         //-------------------------------------------------------------------------------
         // Adding the rest of jclic settings, spreeading all them into this fieldset
-        // or adding more fieldsets ('header' elements) if needed for better logic
-        $mform->addElement('static', 'label1', 'jclicsetting1', 'Your jclic fields go here. Replace me!');
+        $mform->addElement('header', 'header_jclic', get_string('header_jclic', 'jclic'));
 
-        $mform->addElement('header', 'jclicfieldset', get_string('jclicfieldset', 'jclic'));
-        $mform->addElement('static', 'label2', 'jclicsetting2', 'Your jclic fields go here. Replace me!');
+//        $mform->addElement('filepicker', 'url', get_string('url', 'jclic'));
+        
+        $filemanager_options = array();
+        // 3 == FILE_EXTERNAL & FILE_INTERNAL
+        // These two constant names are defined in repository/lib.php
+        $filemanager_options['return_types'] = 3;
+        $filemanager_options['accepted_types'] = '.jclic.zip';
+        $filemanager_options['maxbytes'] = 0;
+        $filemanager_options['maxfiles'] = 1;
+        $filemanager_options['mainfile'] = true;
 
+        $mform->addElement('filemanager', 'url', get_string('url', 'jclic'), null, $filemanager_options);
+
+        
+/*        $mform->addElement('choosecoursefile', 'url', get_string('url', 'jclic'), array('courseid'=>$COURSE->id));
+        $mform->setHelpButton('url', array('url',get_string('url', 'jclic'), 'jclic'), false, 'helpbutton');
+        $mform->setDefault('url', '');
+        $mform->setType('url', PARAM_RAW);
+        $mform->addRule('url', null, 'required', null, 'client');
+*/        
+        $mform->addElement('text', 'exiturl', get_string('exiturl', 'jclic'), array('size'=>75));
+        //$mform->setHelpButton('exiturl', array('exiturl',get_string('exiturl', 'jclic'), 'jclic'), false, 'helpbutton');
+        $mform->setDefault('exiturl', '');
+        $mform->setType('exiturl', PARAM_RAW);
+
+        $options = jclic_get_languages();
+        $mform->addElement('select', 'lang', get_string('lang', 'jclic'), $options);
+        $mform->setDefault('lang', substr($CFG->lang, 0, -5));
+
+        $options = jclic_get_skins();
+        $mform->addElement('select', 'skin', get_string('skin', 'jclic'), $options);
+
+        $mform->addElement('text', 'width', get_string('width', 'jclic'), array('size'=>'5'));
+        $mform->setDefault('width', '600');
+        
+        $mform->addElement('text', 'height', get_string('height', 'jclic'), array('size'=>'5'));
+        $mform->setDefault('height', '400');
+        
+        //-------------------------------------------------------------------------------
+        $mform->addElement('header', 'header_score', get_string('header_score', 'jclic'));
+
+        /*$mform->addElement('modgrade', 'maxxgrade', get_string('grade'));
+        $mform->setDefault('grade', 100);
+
+        $mform->addElement('date_time_selector', 'timeavailable', get_string('availabledate', 'jclic'), array('optional'=>true));
+        $mform->setDefault('timeavailable', time());
+        $mform->addElement('date_time_selector', 'timedue', get_string('duedate', 'jclic'), array('optional'=>true));
+        $mform->setDefault('timedue', time()+7*24*3600);*/
+
+        $options = array(-1 => get_string('unlimited','jclic'), 1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 10 => 10);
+        $mform->addElement('select', 'maxattempts', get_string('maxattempts', 'jclic'), $options);
+        $mform->setDefault('maxattempts', '-1');
+        
+        $options = array('score' => get_string('avaluation_score','jclic'),'solved' => get_string('avaluation_solved','jclic'));
+        $mform->addElement('select', 'avaluation', get_string('avaluation', 'jclic'), $options);
+        $mform->setDefault('avaluation', '-1');
+
+        $mform->addElement('text', 'maxgrade', get_string('maxgrade', 'jclic'), array('size'=>'5'));
+        $mform->addRule('maxgrade', null, 'numeric', null, 'client');
+        $mform->setDefault('maxgrade', '100');
+                
         //-------------------------------------------------------------------------------
         // add standard elements, common to all modules
         $this->standard_coursemodule_elements();
@@ -77,4 +142,13 @@ class mod_jclic_mod_form extends moodleform_mod {
         // add standard buttons, common to all modules
         $this->add_action_buttons();
     }
+    
+    function data_preprocessing(&$default_values) {
+        if ($this->current->instance) {
+            $draftitemid = file_get_submitted_draft_itemid('url');
+            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_jclic', 'content', 0, array('subdirs'=>true));
+            $default_values['url'] = $draftitemid;
+        }        
+    }
+    
 }

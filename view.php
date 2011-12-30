@@ -29,7 +29,7 @@
  */
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once(dirname(__FILE__).'/lib.php');
+require_once(dirname(__FILE__).'/locallib.php');
 
 $id = optional_param('id', 0, PARAM_INT); // course_module ID, or
 $n  = optional_param('n', 0, PARAM_INT);  // jclic instance ID - it should be named as the first character of the module
@@ -48,6 +48,7 @@ if ($id) {
 
 require_login($course, true, $cm);
 $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+require_capability('mod/jclic:view', $context);
 
 add_to_log($course->id, 'jclic', 'view', "view.php?id={$cm->id}", $jclic->name, $cm->id);
 
@@ -63,15 +64,15 @@ $PAGE->set_context($context);
 //$PAGE->set_focuscontrol('some-html-id');
 //$PAGE->add_body_class('jclic-'.$somevar);
 
-// Output starts here
-echo $OUTPUT->header();
 
-if ($jclic->intro) { // Conditions to show the intro can change to look for own settings or whatever
-    echo $OUTPUT->box(format_module_intro('jclic', $jclic, $cm->id), 'generalbox mod_introbox', 'jclicintro');
-}
 
-// Replace the following lines with you own code
-echo $OUTPUT->heading('Yay! It works!');
+jclic_view_header($jclic, $cm, $course);
 
-// Finish the page
-echo $OUTPUT->footer();
+jclic_view_intro($jclic, $cm);
+
+jclic_view_dates();
+
+jclic_view_applet($jclic, $context);
+
+jclic_view_footer();
+

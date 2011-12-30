@@ -26,12 +26,59 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Post installation procedure
  *
  * @see upgrade_plugins_modules()
  */
 function xmldb_jclic_install() {
+    global $DB;
+
+    $records = array(
+        array_combine(array('setting_key', 'setting_value'), array('ALLOW_CREATE_GROUPS', 'false')),
+        array_combine(array('setting_key', 'setting_value'), array('ALLOW_CREATE_USERS', 'false')),
+        array_combine(array('setting_key', 'setting_value'), array('SHOW_GROUP_LIST', 'false')),
+        array_combine(array('setting_key', 'setting_value'), array('SHOW_USER_LIST', 'false')),
+        array_combine(array('setting_key', 'setting_value'), array('USER_TABLES', 'true')),
+        array_combine(array('setting_key', 'setting_value'), array('TIME_LAP', '10'))
+    );
+    foreach ($records as $record) {
+        $DB->insert_record('jclic_settings', $record, false);
+    }
+    
+/*    
+    $record = new stdClass();
+    $record->setting_key  = 'ALLOW_CREATE_GROUPS';
+    $record->setting_value = 'false';
+    $DB->insert_record('jclic_settings', $record);
+
+    $record = new stdClass();
+    $record->setting_key  = 'ALLOW_CREATE_USERS';
+    $record->setting_value = 'false';
+    $DB->insert_record('jclic_settings', $record);
+
+    $record = new stdClass();
+    $record->setting_key  = 'SHOW_GROUP_LIST';
+    $record->setting_value = 'false';
+    $DB->insert_record('jclic_settings', $record);
+
+    $record = new stdClass();
+    $record->setting_key  = 'SHOW_USER_LIST';
+    $record->setting_value = 'false';
+    $DB->insert_record('jclic_settings', $record);
+
+    $record = new stdClass();
+    $record->setting_key  = 'USER_TABLES';
+    $record->setting_value = 'true';
+    $DB->insert_record('jclic_settings', $record);
+
+    $record = new stdClass();
+    $record->setting_key  = 'TIME_LAP';
+    $record->setting_value = '10';
+    $DB->insert_record('jclic_settings', $record);
+*/    
 }
 
 /**
