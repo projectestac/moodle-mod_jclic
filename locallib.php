@@ -267,24 +267,24 @@ defined('MOODLE_INTERNAL') || die();
         return $path;
     }    
     
-    function jclic_set_mainfile($jclic) {
-        global $DB;
-        
+    function jclic_get_filemanager_options(){
+        $filemanager_options = array();
+        $filemanager_options['return_types'] = 3;  // 3 == FILE_EXTERNAL & FILE_INTERNAL. These two constant names are defined in repository/lib.php
+        $filemanager_options['accepted_types'] = 'archive';
+        $filemanager_options['maxbytes'] = 0;
+        $filemanager_options['subdirs'] = 0;
+        $filemanager_options['maxfiles'] = 1;
+        return $filemanager_options;
+    }
+
+    function jclic_save_file($jclic) {
         $fs = get_file_storage();
         $cmid = $jclic->coursemodule;
         $draftitemid = $jclic->url;
 
         $context = get_context_instance(CONTEXT_MODULE, $cmid);
         if ($draftitemid) {
-            file_save_draft_area_files($draftitemid, $context->id, 'mod_jclic', 'content', 0, array('subdirs'=>true));
-        }
-        $files = $fs->get_area_files($context->id, 'mod_jclic', 'content', 0, 'sortorder', false);
-        if (count($files) == 1) {
-            // only one file attached, set it as main file automatically
-            $file = reset($files);
-            file_set_sortorder($context->id, 'mod_jclic', 'content', 0, $file->get_filepath(), $file->get_filename(), 1);
+            file_save_draft_area_files($draftitemid, $context->id, 'mod_jclic', 'content', 0, jclic_get_filemanager_options());
         }
     }
-    
-    
-    
+        

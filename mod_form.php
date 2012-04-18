@@ -64,29 +64,14 @@ class mod_jclic_mod_form extends moodleform_mod {
         // Adding the standard "intro" and "introformat" fields
         $this->add_intro_editor();
         
-/*
-        $mform->addElement('htmleditor', 'description', get_string('description'));
-        $mform->setType('description', PARAM_RAW);
-        $mform->setHelpButton('description', array('writing', 'questions', 'text'), false, 'editorhelpbutton');
-*/
-        
         //-------------------------------------------------------------------------------
         // Adding the rest of jclic settings, spreeading all them into this fieldset
         $mform->addElement('header', 'header_jclic', get_string('header_jclic', 'jclic'));
 
 //        $mform->addElement('filepicker', 'url', get_string('url', 'jclic'));
-        
-        $filemanager_options = array();
-        // 3 == FILE_EXTERNAL & FILE_INTERNAL
-        // These two constant names are defined in repository/lib.php
-        $filemanager_options['return_types'] = 3;
-        $filemanager_options['accepted_types'] = '.jclic.zip';
-        $filemanager_options['maxbytes'] = 0;
-        $filemanager_options['maxfiles'] = 1;
-        $filemanager_options['mainfile'] = true;
-
-        $mform->addElement('filemanager', 'url', get_string('url', 'jclic'), null, $filemanager_options);
-
+                
+        $mform->addElement('filemanager', 'url', get_string('url', 'jclic'), null, jclic_get_filemanager_options());   
+        $mform->addHelpButton('url', 'urledit', 'jclic');
         
 /*        $mform->addElement('choosecoursefile', 'url', get_string('url', 'jclic'), array('courseid'=>$COURSE->id));
         $mform->setHelpButton('url', array('url',get_string('url', 'jclic'), 'jclic'), false, 'helpbutton');
@@ -146,9 +131,10 @@ class mod_jclic_mod_form extends moodleform_mod {
     function data_preprocessing(&$default_values) {
         if ($this->current->instance) {
             $draftitemid = file_get_submitted_draft_itemid('url');
-            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_jclic', 'content', 0, array('subdirs'=>true));
+            file_prepare_draft_area($draftitemid, $this->context->id, 'mod_jclic', 'content', 0, jclic_get_filemanager_options());
             $default_values['url'] = $draftitemid;
         }        
     }
+    
     
 }

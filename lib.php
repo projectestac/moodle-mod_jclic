@@ -57,7 +57,15 @@ if (!isset($CFG->jclic_lap)) {
  */
 function jclic_supports($feature) {
     switch($feature) {
-        case FEATURE_MOD_INTRO:         return true;
+/*        case FEATURE_GROUPS:                  return true;
+        case FEATURE_GROUPINGS:               return true;
+        case FEATURE_GROUPMEMBERSONLY:        return true;*/
+        case FEATURE_MOD_INTRO:               return true;
+/*        case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
+        case FEATURE_GRADE_HAS_GRADE:         return true;
+        case FEATURE_GRADE_OUTCOMES:          return true;
+        case FEATURE_BACKUP_MOODLE2:          return true;
+        case FEATURE_SHOW_DESCRIPTION:        return true;*/
         default:                        return null;
     }
 }
@@ -84,7 +92,9 @@ function jclic_add_instance(stdClass $jclic, mod_jclic_mod_form $mform = null) {
     $jclic->id = $DB->insert_record('jclic', $jclic);
     // we need to use context now, so we need to make sure all needed info is already in db
     $DB->set_field('course_modules', 'instance', $jclic->id, array('id'=>$cmid));
-    jclic_set_mainfile($jclic);
+    
+    jclic_save_file($jclic);
+    
     return $jclic->id;    
 }
 
@@ -108,7 +118,7 @@ function jclic_update_instance(stdClass $jclic, mod_jclic_mod_form $mform = null
 
     $result = $DB->update_record('jclic', $jclic);
     if ($result){
-        jclic_set_mainfile($jclic);    
+        jclic_save_file($jclic);    
     }
     return $result;
 }
@@ -338,7 +348,9 @@ function jclic_update_grades(stdClass $jclic, $userid = 0) {
  * @return array of [(string)filearea] => (string)description
  */
 function jclic_get_file_areas($course, $cm, $context) {
-    return array();
+    return array(
+        'content'      => get_string('urledit',  'jclic')
+    );
 }
 
 /**

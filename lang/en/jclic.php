@@ -87,4 +87,6 @@ $string['jclic'] = 'JClic';
 $string['modulename_help'] = 'Use the jclic module for... | The jclic module allows...';
 $string['pluginadministration'] = 'JClic administration';
 $string['pluginname'] = 'JClic';
+$string['urledit'] = 'JClic activity file';
+$string['urledit_help'] = 'The URL of the jclic.zip file where you will find the JClic activity package.';
 
