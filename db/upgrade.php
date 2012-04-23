@@ -46,16 +46,16 @@ function xmldb_jclic_upgrade($oldversion) {
     $dbman = $DB->get_manager(); // loads ddl manager and xmldb classes
 
     if ($oldversion < 2011011900) {
-        $table = new XMLDBTable('jclic');
+        $table = new xmldb_table('jclic');
         /// Define lang field format to be added to jclic
-        $field = new XMLDBField('lang');
-        $field->setAttributes(XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, null, null, 'ca', 'url');
-        $result = $result && add_field($table, $field);
+        $field = new xmldb_field('lang');
+        $field->set_attributes(XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, 'ca', 'url');
+        $result = $result && $dbman->add_field($table, $field);
 
         /// Define exiturl field format to be added to jclic
-        $field = new XMLDBField('exiturl');
-        $field->setAttributes(XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, null, null, 'url');
-        $result = $result && add_field($table, $field);
+        $field = new xmldb_field('exiturl');
+        $field->set_attributes(XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'url');
+        $result = $result && $dbman->add_field($table, $field);
     }
     
     if ($oldversion < 2011122902) {
@@ -67,7 +67,8 @@ function xmldb_jclic_upgrade($oldversion) {
             $dbman->rename_field($table, $field, 'intro');
         }
         
-        $field = new xmldb_field('introformat', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'intro');
+        $field = new xmldb_field('introformat');
+        $field->set_attributes(XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'intro');
 
         /// Launch add field introformat
         if (!$dbman->field_exists($table, $field)) {

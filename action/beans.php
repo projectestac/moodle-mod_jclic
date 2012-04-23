@@ -15,6 +15,8 @@ if($GLOBALS["HTTP_RAW_POST_DATA"]){
 require_once("../../../config.php");
 require_once("../lib.php");
 
+$dbman = $DB->get_manager(); // loads ddl manager and xmldb classes
+
 $elements=array();
 $oldElements=array();
 $thisElement="";
@@ -76,23 +78,30 @@ switch($beans[0]['ID']){
 		}
 		echo '</bean>';
 	    break;
-	case "add session":
-		$jclic_session->jclicid=$beans[0]['PARAMS']['key'];
+	case "add session":  
+                $jclic_session = new stdClass();
+		$jclic_session->jclicid=$beans[0]['PARAMS']['key'];            
 		$jclic_session->user_id=$beans[0]['PARAMS']['user'];
-		$jclic_session->session_datetime=round($beans[0]['PARAMS']['time']/1000);
+                $jclic_session->session_datetime = date('Y-m-d h:i:s', $beans[0]['PARAMS']['time']);
 		$jclic_session->session_id=$beans[0]['PARAMS']['user'].'_'.$beans[0]['PARAMS']['time'];
 		$jclic_session->project_name=$beans[0]['PARAMS']['project'];
-		insert_record("jclic_sessions", $jclic_session);
-		
-		if (!get_record("jclic_users", "user_id", $beans[0]['PARAMS']['user'].'')){
-			if ($user = get_record("user", "id", $beans[0]['PARAMS']['user'].'')){
-				$jclic_user->user_id=$beans[0]['PARAMS']['user'];
-				$jclic_user->group_id='1';
-				$jclic_user->user_name=$user->firstname.' '.$user->lastname;
-				insert_record("jclic_users", $jclic_user);
-			}
-		}
-		
+                try{
+                    $DB->insert_record("jclic_sessions", $jclic_session);
+                }catch (Exception $e){
+                    echo 'Caught exception: ',  $e->getMessage(), "\n";
+                    print_r($e);
+                }
+
+                if (!$DB->get_record('jclic_users', array('user_id' => $beans[0]['PARAMS']['user'].'') )){
+                    if ($user = $DB->get_record('user', array('id' => $beans[0]['PARAMS']['user'].''))){
+                        $jclic_user->user_id = $beans[0]['PARAMS']['user'];
+                        $jclic_user->group_id = '1';
+                        $jclic_user->user_name = $user->firstname.' '.$user->lastname;
+                        $DB->insert_record("jclic_users", $jclic_user);                        
+                    }
+                    
+                }
+                
 		echo '<?xml version="1.0" encoding="UTF-8"?'.'>';
 		echo '<bean id="add session">';
 		echo ' <param name="session" value="'.$jclic_session->session_id.'"/>';
@@ -110,7 +119,7 @@ switch($beans[0]['ID']){
 				$jclic_activity->qualification=getPrecision($bean['ACTIVITY']['minActions'], $bean['ACTIVITY']['actions'], ''.$bean['ACTIVITY']['solved'], $bean['ACTIVITY']['score']);
 				//$jclic_activity->starttime=$bean['ACTIVITY']['start'];
 				$jclic_activity->total_time=$bean['ACTIVITY']['time'];
-				insert_record("jclic_activities", $jclic_activity);
+				$DB->insert_record("jclic_activities", $jclic_activity);
 				
 			}			
 		}

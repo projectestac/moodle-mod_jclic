@@ -1,6 +1,6 @@
 <HTML>
 <HEAD><TITLE>Ajax + XML</TITLE></HEAD>
-<SCRIPT type="text/javascript" src="../jclic19/prototype.js"></SCRIPT>
+<SCRIPT type="text/javascript" src="./prototype.js"></SCRIPT>
 <BODY>
 
 <script type="text/javascript">
@@ -19,8 +19,8 @@ function sendRequest(){
 function setRequest(){
   var request = '<'+'?xml version="1.0" encoding="UTF-8"?'+'>\n';
   switch($('bean').value){
-  	case 'get_properties': request+='<bean id="get_properties" />';break;
-  	case 'add session': request+='<bean id="add session">\n  <param name="key" value="1" />\n <param name="user" value="2" />\n <param name="time" value="1225709369639" />\n <param name="project" value="superdom" />\n</bean>';break;
+    case 'get_properties': request+='<bean id="get_properties" />';break;
+    case 'add session': request+='<bean id="add session">\n  <param name="key" value="1" />\n <param name="user" value="2" />\n <param name="time" value="1225709369639" />\n <param name="project" value="conc_mat" />\n</bean>';break;
     case 'multiple': request+='<bean id="multiple">\n <bean id="add activity">\n <param name="num" value="0" /> \n <param name="session" value="2_1225709369639" /> \n <activity name="serord01.puz" start="1225709399639" time="5313" solved="false" score="2" minActions="5" actions="3" /> \n </bean>\n <bean id="add activity">\n <param name="num" value="1" />\n <param name="session" value="2_1225709369639" />\n <activity name="serord02.puz" start="1225709469639" time="5062" solved="false" score="0" minActions="5" actions="3" />\n </bean>\n</bean>';break;
     default: request=""; 
   }
@@ -34,7 +34,7 @@ function setRequest(){
 <li>
 <div class="title">Service:</div> 
 <!--INPUT type="text" name="service" id="service" value="ws.php"/-->
-<INPUT type="text" name="service" id="service" value="/moodle/moodle193/mod/jclic/action/beans.php" size="100"/>
+<INPUT type="text" name="service" id="service" value="/agora2/moodle2/mod/jclic/action/beans.php" size="100"/>
 </li>
 <li>
 <div class="title">Bean:</div> 
