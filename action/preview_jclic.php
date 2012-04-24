@@ -3,6 +3,7 @@
 
     require_once("../../../config.php");
     require_once("../lib.php");
+    
     $id = required_param('id', PARAM_INT);             // Course Module ID
     $jclic_project = required_param('project');  // JClic URL
     $jclic_name = str_replace('\\\'', '\'', (optional_param('name', 'JClic')));
@@ -10,15 +11,15 @@
     $jclic_height = optional_param('height', '400');  
     
     if ($id) {
-        if (! $cm = get_record("course_modules", "id", $id)) {
+        if (! $cm = $DB->get_record("course_modules", "id", $id)) {
             error("Course Module ID was incorrect");
         }
     
-        if (! $course = get_record("course", "id", $cm->course)) {
+        if (! $course = $DB->get_record("course", "id", $cm->course)) {
             error("Course is misconfigured");
         }
     
-        if (! $jclic = get_record("jclic", "id", $cm->instance)) {
+        if (! $jclic = $DB->get_record("jclic", "id", $cm->instance)) {
             error("Course module is incorrect");
         }
     } 

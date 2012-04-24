@@ -82,7 +82,7 @@ switch($beans[0]['ID']){
                 $jclic_session = new stdClass();
 		$jclic_session->jclicid=$beans[0]['PARAMS']['key'];            
 		$jclic_session->user_id=$beans[0]['PARAMS']['user'];
-                $jclic_session->session_datetime = date('Y-m-d h:i:s', $beans[0]['PARAMS']['time']);
+                $jclic_session->session_datetime = date('Y-m-d h:i:s', round($beans[0]['PARAMS']['time']/1000));
 		$jclic_session->session_id=$beans[0]['PARAMS']['user'].'_'.$beans[0]['PARAMS']['time'];
 		$jclic_session->project_name=$beans[0]['PARAMS']['project'];
                 try{
@@ -117,13 +117,12 @@ switch($beans[0]['ID']){
 				$jclic_activity->activity_solved=$bean['ACTIVITY']['solved']=='true'?1:0;
 				$jclic_activity->score=$bean['ACTIVITY']['score'];
 				$jclic_activity->qualification=getPrecision($bean['ACTIVITY']['minActions'], $bean['ACTIVITY']['actions'], ''.$bean['ACTIVITY']['solved'], $bean['ACTIVITY']['score']);
-				//$jclic_activity->starttime=$bean['ACTIVITY']['start'];
 				$jclic_activity->total_time=$bean['ACTIVITY']['time'];
 				$DB->insert_record("jclic_activities", $jclic_activity);
 				
 			}			
 		}
-		jclic_update_gradebook($jclic_activity);
+		//jclic_update_gradebook($jclic_activity);
 
 		echo '<?xml version="1.0" encoding="UTF-8"?'.'>';
 		echo '<bean id="add activity">';

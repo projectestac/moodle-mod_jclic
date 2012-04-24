@@ -115,16 +115,13 @@ defined('MOODLE_INTERNAL') || die();
         
         $strshow_results = get_string('show_results', 'jclic');
         $strnoattempts  = get_string('msg_noattempts', 'jclic');
-        
-        echo '<br><A href="#" onclick="window.open(\'action/student_results.php?id='.$jclic->id.'\',\'JClic\',\'navigation=0,toolbar=0,resizable=1,scrollbars=1,width=700,height=400\');" >'.$strshow_results.'</A>';
+        echo '<br><A href="#" onclick="window.open(\'action/student_results.php?id='.$context->instanceid.'\',\'JClic\',\'navigation=0,toolbar=0,resizable=1,scrollbars=1,width=700,height=400\');" >'.$strshow_results.'</A>';
 
-        //$sessions=jclic_get_sessions($jclic->id,$USER->id);
-        $sessions = array();
+        $sessions = jclic_get_sessions($jclic->id,$USER->id);
         $attempts=sizeof($sessions);
         if ($jclic->maxattempts<0 || $attempts < $jclic->maxattempts){
           echo '<div id="jclic_applet" style="text-align:center;padding-top:10px;">';
           echo '</div>';
-          //$PAGE->requires->js( new moodle_url($CFG->jclic_jclicpluginjs), true);
           $PAGE->requires->js('/mod/jclic/jclicplugin.js');
           $PAGE->requires->js('/mod/jclic/jclic.js');
           $params = get_object_vars($jclic);
@@ -287,4 +284,171 @@ defined('MOODLE_INTERNAL') || die();
             file_save_draft_area_files($draftitemid, $context->id, 'mod_jclic', 'content', 0, jclic_get_filemanager_options());
         }
     }
+    
+////////////////////////////////////////////////////////////////////////////////
+// Activity sessions                                                          //
+////////////////////////////////////////////////////////////////////////////////
+    
+
+    /**
+    * Get user sessions
+    *
+    * @return array			[0=>session1,1=>session2...] where session1 is an array with keys: id,score,totaltime,starttime,done,solved,attempts. First sessions are newest.
+    * @param object $jclicid	The jclic to get sessions
+    * @param object $userid		The user id to get sessions
+    */
+    function jclic_get_sessions($jclicid, $userid) {
+        global $CFG, $DB;
         
+        $sessions=array();
+        $sql = "SELECT js.*
+                FROM {jclic} j, {jclic_sessions} js 
+                WHERE j.id=js.jclicid AND js.jclicid=? AND js.user_id=?
+                ORDER BY js.session_datetime";
+        $params = array($jclicid, $userid);
+print_r($params);        
+        if($rs = $DB->get_records_sql($sql, $params)){
+            $i = 0;
+            foreach($rs as $session){
+                    $activity = jclic_get_activity($session);
+                    $activity->attempts=$i+1;
+                    $sessions[$i++]=$activity;
+            }
+        }
+        return $sessions;
+    }    
+    
+    /**
+    * Get session activities
+    *
+    * @return array			[0=>act0,1=>act1...] where act0 is an array with keys: activity_id,activity_name,num_actions,score,activity_solved,qualification, total_time. First activity are oldest.
+    * @param string $session_id		The session id to get actitivies
+    */
+    function jclic_get_activities($session_id) {
+        global $CFG, $DB;
+
+        if($rs = $DB->get_records('jclic_activities', array('session_id'=>$session_id), 'activity_id')){
+            $i=0;
+            foreach($rs as $activity){
+                $activities[$i++]=$activity;
+            }
+        }
+        return $activities;
+    }
+    
+    
+    /**
+    * Get information about activities of specified session
+    *
+    * @return array		Array has these keys id,score,totaltime,starttime,done,solved,attempts
+    * @param object $session	The session object
+    */
+    function jclic_get_activity($session) {
+        global $CFG, $DB;
+
+        $activity->starttime=$session->session_datetime;
+        $activity->session_id=$session->session_id;
+        if($rs = $DB->get_record_sql("SELECT AVG(ja.qualification) as qualification, SUM(ja.total_time) as totaltime
+                                 FROM {jclic_activities} ja 
+                                 WHERE ja.session_id='$session->session_id'")){
+                $activity->score=round($rs->qualification,0);
+                $activity->totaltime=round($rs->totaltime/60000,0)."' ".round(fmod($rs->totaltime,60000)/1000,0)."''";
+        }
+        if ($rs = $DB->get_record_sql("SELECT COUNT(*) as done
+                            FROM (SELECT DISTINCT ja.activity_name 
+                                  FROM  {jclic_activities} ja 
+                                  WHERE ja.session_id='$session->session_id') t")){
+            $activity->done=$rs->done;
+        }
+        
+        if ($rs = $DB->get_record_sql("SELECT COUNT(*) as solved
+                                FROM (SELECT DISTINCT ja.activity_name 
+                                      FROM {jclic_activities} ja 
+                                      WHERE ja.session_id='$session->session_id' AND ja.activity_solved=1) t")){
+            $activity->solved=$rs->solved;
+        }
+        
+        return $activity;
+    }    
+        
+    /**
+    * Print a table data with all session activities 
+    * 
+    * @param string $session_id The session identifier
+    */
+    function get_session_activities($session_id){
+        $table_html='';
+
+        // Import language strings
+        $stractivity = get_string("activity", "jclic");
+        $strsolved = get_string("solved", "jclic");
+        $stractions = get_string("actions", "jclic");
+        $strtime = get_string("time", "jclic");
+        $strscore  = get_string("score", "jclic");
+        $stryes = get_string("yes");
+        $strno = get_string("no");
+        
+
+        // Print activities for each session
+        $activities = jclic_get_activities($session_id);    
+        if (sizeof($activities)>0){ 
+            $table = new html_table();
+            $table->attributes = array('class'=>'jclic-activities-table');
+            $table->head = array($stractivity, $strsolved, $stractions, $strtime, $strscore);
+            foreach($activities as $activity){
+                $act_percent=$activity->num_actions>0?round(($activity->score/$activity->num_actions)*100,0):0;
+                $row = new html_table_row();
+                $row->attributes = array('class' => ($activity->activity_solved?'jclic-activity-solved':'jclic-activity-unsolved') ) ;
+                $row->cells = array($activity->activity_name, ($activity->activity_solved?$stryes:$strno), $activity->score.'/'.$activity->num_actions.' ('.$act_percent.'%)', jclic_time2str($activity->total_time), $activity->qualification.'%');
+                $table->data[] = $row;
+            }
+            $table_html = html_writer::table($table);
+        }
+        return $table_html;
+    }
+
+    /**
+    * Get user activity summary
+    *
+    * @return object	session object with score, totaltime, activities done and solved and attempts information
+    */
+    function jclic_get_sessions_summary($jclicid, $userid) {
+            global $CFG, $DB;
+
+        $sessions_sumari = array('attempts'=>'','score'=>'','totaltime'=>'','starttime'=>'','done'=>'','solved'=>'');
+        
+        if ($rs = $DB->get_record_sql("SELECT COUNT(*) AS attempts, AVG(t.qualification) AS qualification, SUM(t.totaltime) AS totaltime, MAX(t.starttime) AS starttime
+                            FROM (SELECT AVG(ja.qualification) AS qualification, SUM(ja.total_time) AS totaltime, MAX(js.session_datetime) AS starttime
+                                  FROM {$CFG->prefix}jclic j, {$CFG->prefix}jclic_sessions js, {$CFG->prefix}jclic_activities ja  
+                                  WHERE j.id=js.jclicid AND js.user_id=$userid AND js.jclicid=$jclicid AND ja.session_id=js.session_id
+                                  GROUP BY js.session_id) t")){
+                $sessions_summary->attempts=$rs->attempts;
+                $sessions_summary->score=round($rs->qualification,0);
+                $sessions_summary->totaltime=round($rs->totaltime/60000,0)."' ".round(fmod($rs->totaltime,60000)/1000,0)."''";
+                $sessions_summary->starttime=$rs->starttime;
+        }
+
+        if ($rs = $DB->get_record_sql("SELECT COUNT(*) as done
+                            FROM (SELECT DISTINCT ja.activity_name 
+                                  FROM {$CFG->prefix}jclic j, {$CFG->prefix}jclic_sessions js, {$CFG->prefix}jclic_activities ja 
+                                  WHERE j.id=js.jclicid AND js.user_id=$userid AND js.jclicid=$jclicid AND js.session_id=ja.session_id)  t")){
+                $sessions_summary->done=$rs->done;
+        }
+        if ($rs = $DB->get_record_sql("SELECT COUNT(*) as solved
+                            FROM (SELECT DISTINCT ja.activity_name 
+                                  FROM {$CFG->prefix}jclic j, {$CFG->prefix}jclic_sessions js, {$CFG->prefix}jclic_activities ja 
+                                  WHERE j.id=js.jclicid AND js.user_id=$userid AND js.jclicid=$jclicid AND js.session_id=ja.session_id AND ja.activity_solved=1) t")){
+        $sessions_summary->solved=$rs->solved;
+        }
+        return $sessions_summary;
+    }    
+
+    /**
+    * Format time from milliseconds to string 
+    *
+    * @return string Formated string [x' y''], where x are the minutes and y are the seconds.	
+    * @param int $time	The time (in ms)
+    */
+    function jclic_time2str($time){
+        return round($time/60000,0)."' ".round(fmod($time,60000)/1000,0)."''";
+    }    
