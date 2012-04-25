@@ -121,6 +121,9 @@ class mod_jclic_mod_form extends moodleform_mod {
         $mform->setDefault('maxgrade', '100');
                 
         //-------------------------------------------------------------------------------
+
+        $this->standard_grading_coursemodule_elements();
+        
         // add standard elements, common to all modules
         $this->standard_coursemodule_elements();
         //-------------------------------------------------------------------------------

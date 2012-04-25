@@ -306,7 +306,7 @@ defined('MOODLE_INTERNAL') || die();
                 WHERE j.id=js.jclicid AND js.jclicid=? AND js.user_id=?
                 ORDER BY js.session_datetime";
         $params = array($jclicid, $userid);
-print_r($params);        
+        
         if($rs = $DB->get_records_sql($sql, $params)){
             $i = 0;
             foreach($rs as $session){
@@ -326,7 +326,8 @@ print_r($params);
     */
     function jclic_get_activities($session_id) {
         global $CFG, $DB;
-
+        
+        $activities = array();
         if($rs = $DB->get_records('jclic_activities', array('session_id'=>$session_id), 'activity_id')){
             $i=0;
             foreach($rs as $activity){
