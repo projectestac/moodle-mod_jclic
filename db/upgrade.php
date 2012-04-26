@@ -91,7 +91,30 @@ function xmldb_jclic_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2011122902, 'jclic');
     }
     
+//===== 1.9.0 upgrade line ======//
+    /**
+     * @todo: add upgrading code from 1.9 (+ new file storage system)
+     */
 
+/*   
+    if ($oldversion < 2011122903) {
+        require_once($CFG->dirroot.'/mod/jclic/lib.php');
+        jclic_upgrade_grades();
+        upgrade_mod_savepoint(true, 2007101511, 'jclic');
+    }
+    
+*/
+    if ($oldversion < 2012042600) {
+        // Rename field maxgrade on table jclic to grade
+        $table = new xmldb_table('jclic');
+        $field = new xmldb_field('maxgrade', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'avaluation');
+        $dbman->change_field_type($table, $field);
+        $dbman->rename_field($table, $field, 'grade');
+
+        // jclic savepoint reached
+        upgrade_mod_savepoint(true, 2012042600, 'jclic');
+    }
+    
     // Final return of upgrade result (true, all went good) to Moodle.
     return true;
 }

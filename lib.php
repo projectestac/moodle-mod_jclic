@@ -172,22 +172,19 @@ function jclic_delete_instance($id) {
     
     // Delete any dependent records
     $result = true;
-    $rs =  $DB->get_record('jclic_sessions', array('jclicid' => $id));
+    $rs =  $DB->get_records('jclic_sessions', array('jclicid' => $id));
     foreach($rs as $session){
         if (!$DB->delete_records('jclic_activities', array('session_id' => $rs->session_id))){
-            echo 'jclic_activities';die();
             $result = false;
             exit;
         }
     }
 
     if ($result && !$DB->delete_records('jclic_sessions', array('jclicid' => $id))){
-        echo 'jclic_sessions';die();
         $result = false;
     }
 
     if ($result && !$DB->delete_records('jclic', array('id' => $id))) {
-        echo 'jclic';die();
         $result = false;
     }
     
@@ -209,16 +206,32 @@ function jclic_delete_instance($id) {
  * $return->time = the time they did it
  * $return->info = a short text description
  *
+ * @param object $course
+ * @param object $user
+ * @param object $mod
+ * @param object $jclic
  * @return stdClass|null
  */
-function jclic_user_outline($course, $user, $mod, $jclic) {
-    $jclic_summary = jclic_get_sessions_summary($jclic->id, $user->id);
-    $return = new stdClass();
-    $return->time = $jclic_summary->totaltime;
-    $maxgrade = -1;
-    if (property_exists($jclic, 'maxgrade')) $maxgrade = $jclic->maxgrade;
-    $return->info = get_string('grade').': '.$jclic_summary->score.($maxgrade>0?'/'.$maxgrade:'');
-    return $return;
+function jclic_user_outline($course, $user, $mod, $jclic) {    
+    global $CFG;
+    
+    require_once("$CFG->libdir/gradelib.php");
+    $result = null;
+    
+    $grades = grade_get_grades($course->id, 'mod', 'jclic', $jclic->id, $user->id);
+    if (!empty($grades->items[0]->grades)) {
+        $grade = reset($grades->items[0]->grades);
+        $result = new stdClass();
+        $result->info = get_string('grade') . ': ' . $grade->str_long_grade;
+
+        //if grade was last modified by the user themselves use date graded. Otherwise use date submitted
+        if ($grade->usermodified == $user->id || empty($grade->datesubmitted)) {
+            $result->time = $grade->dategraded;
+        } else {
+            $result->time = $grade->datesubmitted;
+        }
+    }
+    return $result;    
 }
 
 /**
@@ -265,11 +278,12 @@ function jclic_get_recent_mod_activity(&$activities, &$index, $timestart, $cours
 
 /**
  * Prints single activity item prepared by {@see jclic_get_recent_mod_activity()}
-
+ * 
+ * @todo: implement
+ * 
  * @return void
  */
 function jclic_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
-    //TODO: implement
 }
 
 /**
@@ -292,8 +306,6 @@ function jclic_cron () {
  * independient of his role (student, teacher, admin...). The returned
  * objects must contain at least id property.
  * See other modules as example.
- * 
- * @todo: deprecated - to be deleted in 2.2
  * 
  * @param int $jclicid ID of an instance of this module
  * @return boolean|array false if no participants, array of objects otherwise
@@ -456,12 +468,17 @@ function jclic_get_user_grades($jclic, $userid=0) {
     if (! isset($jclic->id)) {
         return;
     }
-    
     $sessions_summary = jclic_get_sessions_summary($jclic->id, $userid);
+    $grades[$userid]->userid = $userid;
+    $grades[$userid]->attempts = $sessions_summary->attempts;
+    $grades[$userid]->totaltime = $sessions_summary->totaltime;
+    $grades[$userid]->starttime = $sessions_summary->starttime;
+    $grades[$userid]->done = $sessions_summary->done;
+    $grades[$userid]->rawgrade = 0;
     if ($jclic->avaluation=='score'){
-        $grades[$userid]=$sessions_summary->score;				
+        $grades[$userid]->rawgrade = $sessions_summary->score;				
     }else{
-        $grades[$userid]=$sessions_summary->solved;
+        $grades[$userid]->rawgrade = $sessions_summary->solved;
     }
     return $grades;
 }

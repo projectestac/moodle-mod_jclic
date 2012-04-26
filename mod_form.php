@@ -116,10 +116,6 @@ class mod_jclic_mod_form extends moodleform_mod {
         $mform->addElement('select', 'avaluation', get_string('avaluation', 'jclic'), $options);
         $mform->setDefault('avaluation', '-1');
 
-        $mform->addElement('text', 'maxgrade', get_string('maxgrade', 'jclic'), array('size'=>'5'));
-        $mform->addRule('maxgrade', null, 'numeric', null, 'client');
-        $mform->setDefault('maxgrade', '100');
-                
         //-------------------------------------------------------------------------------
 
         $this->standard_grading_coursemodule_elements();

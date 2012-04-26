@@ -125,6 +125,8 @@ switch($beans[0]['ID']){
 		}
                 if ($jclic_session = $DB->get_record('jclic_sessions', array('session_id' => $jclic_activity->session_id) )){
                     $jclic = $DB->get_record('jclic', array('id' => $jclic_session->jclicid) );
+                    $cm = get_coursemodule_from_instance('jclic', $jclic->id, $jclic->course, false, MUST_EXIST);
+                    $jclic->cmidnumber = $cm->idnumber;
                     jclic_update_grades($jclic, $jclic_session->user_id);
                 }
 		//jclic_update_gradebook($jclic_activity);
