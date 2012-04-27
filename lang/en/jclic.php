@@ -83,10 +83,27 @@ $string['exiturl']='Exit URL';
 
 
 /* Revision Moodle 2.X */
+$string['availabledate'] = 'Available from';
+$string['closebeforeopen'] = 'Could not update the jclic. You have specified a close date before the open date.';
+$string['duedate'] = 'Due date';
+$string['filetypeexternal'] = 'External JClic package';
+$string['filetypelocal'] = 'Uploaded JClic package';
 $string['jclic'] = 'JClic';
 $string['modulename_help'] = 'Use the jclic module for... | The jclic module allows...';
 $string['pluginadministration'] = 'JClic administration';
 $string['pluginname'] = 'JClic';
 $string['urledit'] = 'JClic activity file';
 $string['urledit_help'] = 'The URL of the jclic.zip file where you will find the JClic activity package.';
+$string['filetype'] = 'Type';
+$string['filetype_help'] = 'This setting determines how the package is included in the course. There are up to 4 options:
+
+* Uploaded package - Enables a SCORM package to be chosen via the file picker
+* External SCORM manifest - Enables an imsmanifest.xml URL to be specified. Note: If the URL has a different domain name than your site, then "Downloaded package" is a better option, since otherwise grades are not saved.
+* Downloaded package - Enables a package URL to be specified. The package will be unzipped and saved locally, and updated when the external SCORM package is updated.
+* Local IMS content repository - Enables a package to be selected from within an IMS repository
+* External AICC URL - this URL is the launch URL for a single AICC Activity.  A psuedo package will be constructed around this.';
+$string['jclicurl'] = 'URL';
+$string['jclicurl_help'] = 'This setting enables a URL for the JClic package to be specified, rather than choosing a file via the file picker.';
+$string['jclicfile'] = 'JClic file';
+$string['jclicfile_help'] = 'The .jlic.zip file containing the JClic files.';
 

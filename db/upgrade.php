@@ -115,6 +115,19 @@ function xmldb_jclic_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2012042600, 'jclic');
     }
     
+    if ($oldversion < 2012042700) {
+        // Rename field maxgrade on table jclic to grade
+        $table = new xmldb_table('jclic');
+        $field = new xmldb_field('timeavailable', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, '0', 'exiturl');
+        $dbman->add_field($table, $field);
+
+        $field = new xmldb_field('timedue', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, '0', 'timeavailable');
+        $dbman->add_field($table, $field);
+        
+        // jclic savepoint reached
+        upgrade_mod_savepoint(true, 2012042700, 'jclic');
+    }
+    
     // Final return of upgrade result (true, all went good) to Moodle.
     return true;
 }

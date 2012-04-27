@@ -64,21 +64,24 @@ class mod_jclic_mod_form extends moodleform_mod {
         // Adding the standard "intro" and "introformat" fields
         $this->add_intro_editor();
         
+        $mform->addElement('date_time_selector', 'timeavailable', get_string('availabledate', 'jclic'), array('optional'=>true));
+        $mform->addElement('date_time_selector', 'timedue', get_string('duedate', 'jclic'), array('optional'=>true));
+        
         //-------------------------------------------------------------------------------
         // Adding the rest of jclic settings, spreeading all them into this fieldset
         $mform->addElement('header', 'header_jclic', get_string('header_jclic', 'jclic'));
 
-//        $mform->addElement('filepicker', 'url', get_string('url', 'jclic'));
-                
-        $mform->addElement('filemanager', 'url', get_string('url', 'jclic'), null, jclic_get_filemanager_options());   
-        $mform->addHelpButton('url', 'urledit', 'jclic');
+        $mform->addElement('select', 'filetype', get_string('filetype', 'jclic'), jclic_get_file_types());
+        $mform->addHelpButton('filetype', 'filetype', 'jclic');
+        $mform->addElement('text', 'jclicurl', get_string('jclicurl', 'jclic'), array('size'=>60));
+        $mform->setType('jclicurl', PARAM_RAW);
+        $mform->addHelpButton('jclicurl', 'jclicurl', 'jclic');
+        $mform->disabledIf('jclicurl', 'filetype', 'eq', JCLIC_FILE_TYPE_LOCAL);
         
-/*        $mform->addElement('choosecoursefile', 'url', get_string('url', 'jclic'), array('courseid'=>$COURSE->id));
-        $mform->setHelpButton('url', array('url',get_string('url', 'jclic'), 'jclic'), false, 'helpbutton');
-        $mform->setDefault('url', '');
-        $mform->setType('url', PARAM_RAW);
-        $mform->addRule('url', null, 'required', null, 'client');
-*/        
+        $mform->addElement('filemanager', 'jclicfile', get_string('jclicfile', 'jclic'), array('optional'=>false), jclic_get_filemanager_options());   
+        $mform->addHelpButton('jclicfile', 'urledit', 'jclic');
+        $mform->disabledIf('jclicfile', 'filetype', 'noteq', JCLIC_FILE_TYPE_LOCAL);
+        
         $mform->addElement('text', 'exiturl', get_string('exiturl', 'jclic'), array('size'=>75));
         //$mform->setHelpButton('exiturl', array('exiturl',get_string('exiturl', 'jclic'), 'jclic'), false, 'helpbutton');
         $mform->setDefault('exiturl', '');
@@ -129,11 +132,53 @@ class mod_jclic_mod_form extends moodleform_mod {
     
     function data_preprocessing(&$default_values) {
         if ($this->current->instance) {
-            $draftitemid = file_get_submitted_draft_itemid('url');
+            $draftitemid = file_get_submitted_draft_itemid('jclicfile');
             file_prepare_draft_area($draftitemid, $this->context->id, 'mod_jclic', 'content', 0, jclic_get_filemanager_options());
-            $default_values['url'] = $draftitemid;
+            $default_values['jclicfile'] = $draftitemid;
         }        
     }
     
+    public function validation($data, $files) {
+        $errors = parent::validation($data, $files);
+
+        // Check open and close times are consistent.
+        if ($data['timeavailable'] != 0 && $data['timedue'] != 0 &&
+            $data['timedue'] < $data['timeavailable']) {
+            $errors['timedue'] = get_string('closebeforeopen', 'jclic');
+        }
+        
+        $type = $data['filetype'];
+        if ($type === JCLIC_FILE_TYPE_LOCAL) {
+            if (!empty($data['update'])) {
+                //ok, not required
+            } else if (empty($data['jclicfile'])) {
+                $errors['jclicfile'] = get_string('required');
+            }
+        } else if ($type === JCLIC_FILE_TYPE_EXTERNAL) {
+            $reference = $data['jclicurl'];
+            if (!preg_match('/(http:\/\/|https:\/\/|www).*\/jclic.zip$/i', $reference)) {
+                $errors['packageurl'] = get_string('invalidurl', 'jclic');
+            }
+        }
+
+        return $errors;
+    }    
+    
+    // Need to translate the "url" field
+    function set_data($default_values) {
+        $default_values = (array)$default_values;
+
+        if (isset($default_values['filetype']) and isset($default_values['url'])) {
+            switch ($default_values['filetype']) {
+                case JCLIC_FILE_TYPE_LOCAL :
+                case JCLIC_FILE_TYPE_EXTERNAL:
+                    $default_values['jclicurl'] = $default_values['url'];
+            }
+        }
+        unset($default_values['url']);
+
+        $this->data_preprocessing($default_values);
+        parent::set_data($default_values);
+    }
     
 }

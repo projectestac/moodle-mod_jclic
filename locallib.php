@@ -56,6 +56,16 @@ defined('MOODLE_INTERNAL') || die();
       return array('@default.xml' => 'default','@blue.xml' => 'blue','@orange.xml' => 'orange','@green.xml' => 'green','@simple.xml' => 'simple', '@mini.xml' => 'mini');
     } 
 
+    /**
+    * Get an array with the file types
+    *
+    * @return array   The array with each file type
+    */
+    function jclic_get_file_types(){
+        $filetypes =  array(JCLIC_FILE_TYPE_LOCAL => get_string('filetypelocal', 'jclic'));
+        $filetypes[JCLIC_FILE_TYPE_EXTERNAL] = get_string('filetypeexternal', 'jclic');
+        return $filetypes;
+    }    
 
     /**
      * Display the header and top of a page
@@ -452,4 +462,5 @@ defined('MOODLE_INTERNAL') || die();
     */
     function jclic_time2str($time){
         return round($time/60000,0)."' ".round(fmod($time,60000)/1000,0)."''";
-    }    
+    } 
+    

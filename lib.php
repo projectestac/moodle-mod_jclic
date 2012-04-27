@@ -43,6 +43,10 @@ if (!isset($CFG->jclic_lap)) {
     set_config("jclic_lap", "5");
 }
 
+// JClic file types
+define('JCLIC_FILE_TYPE_LOCAL', 'local');
+define('JCLIC_FILE_TYPE_EXTERNAL', 'external');
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Moodle core API                                                            //
@@ -66,6 +70,7 @@ function jclic_supports($feature) {
 //        case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
         case FEATURE_GRADE_HAS_GRADE:         return true;
 //        case FEATURE_GRADE_OUTCOMES:          return true;
+//        case FEATURE_RATE:                    return true;
 //        case FEATURE_BACKUP_MOODLE2:          return true;
 //        case FEATURE_SHOW_DESCRIPTION:        return true;*/
 //        case FEATURE_ADVANCED_GRADING:        return true;
@@ -89,18 +94,26 @@ function jclic_supports($feature) {
  */
 function jclic_add_instance(stdClass $jclic, mod_jclic_mod_form $mform = null) {
     global $DB;
+        
     $cmid = $jclic->coursemodule;
     $jclic->timecreated = time();
-    $jclic->url = trim($jclic->url);
     if ($jclic->skin=='') $jclic->skin = "default";
+
+    if ($mform->get_data()->filetype === JCLIC_FILE_TYPE_LOCAL) {
+        $jclic->url = $mform->get_data()->jclicfile;
+    } else{
+        $jclic->url = $jclic->jclicurl;
+    }
 
     $jclic->id = $DB->insert_record('jclic', $jclic);
     // we need to use context now, so we need to make sure all needed info is already in db
     $DB->set_field('course_modules', 'instance', $jclic->id, array('id'=>$cmid));
     
-    jclic_save_file($jclic);
+    // Store the JClic and verify
+    if ($mform->get_data()->filetype === JCLIC_FILE_TYPE_LOCAL) {
+        jclic_save_file($jclic);
+    }
     
-    /*
     if ($jclic->timedue) {
         $event = new stdClass();
         $event->name        = $jclic->name;
@@ -109,13 +122,13 @@ function jclic_add_instance(stdClass $jclic, mod_jclic_mod_form $mform = null) {
         $event->groupid     = 0;
         $event->userid      = 0;
         $event->modulename  = 'jclic';
-        $event->instance    = $returnid;
+        $event->instance    = $jclic->id;
         $event->eventtype   = 'due';
         $event->timestart   = $jclic->timedue;
         $event->timeduration = 0;
 
         calendar_event::create($event);
-    } */
+    }
     jclic_grade_item_update($jclic);
     
     return $jclic->id;    
@@ -143,6 +156,35 @@ function jclic_update_instance(stdClass $jclic, mod_jclic_mod_form $mform = null
     if ($result){
         jclic_save_file($jclic);    
     }
+    
+    if ($result && $jclic->timedue) {
+        $event = new stdClass();
+        if ($event->id = $DB->get_field('event', 'id', array('modulename'=>'jclic', 'instance'=>$jclic->id))) {
+            $event->name        = $jclic->name;
+            $event->description = format_module_intro('jclic', $jclic, $jclic->coursemodule);
+            $event->timestart   = $jclic->timedue;
+
+            $calendarevent = calendar_event::load($event->id);
+            $calendarevent->update($event);
+        } else {
+            $event = new stdClass();
+            $event->name        = $jclic->name;
+            $event->description = format_module_intro('jclic', $jclic, $jclic->coursemodule);
+            $event->courseid    = $jclic->course;
+            $event->groupid     = 0;
+            $event->userid      = 0;
+            $event->modulename  = 'jclic';
+            $event->instance    = $jclic->id;
+            $event->eventtype   = 'due';
+            $event->timestart   = $jclic->timedue;
+            $event->timeduration = 0;
+
+            calendar_event::create($event);
+        }
+    } else {
+        $DB->delete_records('event', array('modulename'=>'jclic', 'instance'=>$jclic->id));
+    }  
+    
     if ($result){
         // get existing grade item
         $result = jclic_grade_item_update($jclic);
@@ -188,9 +230,9 @@ function jclic_delete_instance($id) {
         $result = false;
     }
     
-    /*if ($result && !$DB->delete_records('event', array('modulename'=>'jclic', 'instance'=>$jclic->id))) {
+    if ($result && !$DB->delete_records('event', array('modulename'=>'jclic', 'instance'=>$jclic->id))) {
         $result = false;
-    }*/
+    }
 
     if ($result && !jclic_grade_item_delete($jclic)){
         $result = false;

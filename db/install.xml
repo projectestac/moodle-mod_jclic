@@ -19,7 +19,9 @@
         <FIELD NAME="avaluation" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="height" NEXT="grade"/>
         <FIELD NAME="grade" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="false" DEFAULT="0" SEQUENCE="false" PREVIOUS="avaluation" NEXT="lang"/>
         <FIELD NAME="lang" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false" PREVIOUS="grade" NEXT="exiturl"/>
-        <FIELD NAME="exiturl" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="lang"/>
+        <FIELD NAME="exiturl" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" PREVIOUS="lang" NEXT="timeavailable"/>
+        <FIELD NAME="timeavailable" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="exiturl" NEXT="timedue"/>
+        <FIELD NAME="timedue" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="timeavailable"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for jclic"/>
