@@ -157,11 +157,15 @@ function jclic_update_instance(stdClass $jclic, mod_jclic_mod_form $mform = null
 
     $jclic->timemodified = time();
     $jclic->id = $jclic->instance;
-    $jclic->url = trim($jclic->url);
-
+    if ($mform->get_data()->filetype === JCLIC_FILE_TYPE_LOCAL) {
+        $jclic->url = $mform->get_data()->jclicfile;
+    } else{
+        $jclic->url = $jclic->jclicurl;
+    }
+    
     $result = $DB->update_record('jclic', $jclic);
-    if ($result){
-        jclic_save_file($jclic);    
+    if ($result && $mform->get_data()->filetype === JCLIC_FILE_TYPE_LOCAL) {
+        jclic_save_file($jclic);
     }
     
     if ($result && $jclic->timedue) {

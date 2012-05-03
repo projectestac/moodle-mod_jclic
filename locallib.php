@@ -128,16 +128,6 @@ defined('MOODLE_INTERNAL') || die();
             echo '<div class="title-time">'.get_string('duedate','assignment').': </div>';
             echo '<div class="data-time">'.userdate($jclic->timedue).'</div>';
         }
-/*        echo '<table>';
-        if ($jclic->timeavailable) {
-            echo '<tr><td class="c0">'.get_string('availabledate','assignment').':</td>';
-            echo '    <td class="c1">'.userdate($jclic->timeavailable).'</td></tr>';
-        }
-        if ($jclic->timedue) {
-            echo '<tr><td class="c0">'.get_string('duedate','assignment').':</td>';
-            echo '    <td class="c1">'.userdate($jclic->timedue).'</td></tr>';
-        }
-        echo '</table>';*/
         echo $OUTPUT->box_end();
     }
     
@@ -150,26 +140,38 @@ defined('MOODLE_INTERNAL') || die();
         
         $strshow_results = get_string('show_results', 'jclic');
         $strnoattempts  = get_string('msg_noattempts', 'jclic');
-        echo '<br><A href="#" onclick="window.open(\'action/student_results.php?id='.$context->instanceid.'\',\'JClic\',\'navigation=0,toolbar=0,resizable=1,scrollbars=1,width=700,height=400\');" >'.$strshow_results.'</A>';
-
+        
+        $timenow = time();
+        $isopen = (empty($jclic->timeavailable) || $jclic->timeavailable < $timenow);
+        $isclosed = (!empty($jclic->timedue) && $jclic->timedue < $timenow);
         $sessions = jclic_get_sessions($jclic->id,$USER->id);
         $attempts=sizeof($sessions);
-        if ($jclic->maxattempts<0 || $attempts < $jclic->maxattempts){
-          echo '<div id="jclic_applet" style="text-align:center;padding-top:10px;">';
-          echo '</div>';
-          $PAGE->requires->js('/mod/jclic/jclicplugin.js');
-          $PAGE->requires->js('/mod/jclic/jclic.js');
-          $params = get_object_vars($jclic);
-          $params['jclic_url'] = jclic_get_url($jclic, $context);
-          $params['jclic_path'] = jclic_get_server();
-          $params['jclic_service'] = jclic_get_path().'/mod/jclic/action/beans.php';
-          $params['jclic_user'] = $USER->id;
-          $params['jclic_lap'] = $CFG->jclic_lap;
-          $params['jclic_protocol'] = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
-          $PAGE->requires->js_init_call('M.mod_jclic.init', array($params));
-        }else{
-          echo "<br/><br/>".$strnoattempts;
-        }        
+        if ($attempts > 0 || $isopen) {
+            echo '<br><A href="#" onclick="window.open(\'action/student_results.php?id='.$context->instanceid.'\',\'JClic\',\'navigation=0,toolbar=0,resizable=1,scrollbars=1,width=700,height=400\');" >'.$strshow_results.'</A>';
+        }
+        
+        if (!$isopen){
+            echo $OUTPUT->box(get_string('notopenyet', 'jclic', userdate($jclic->timeavailable)), 'generalbox boxaligncenter');
+        } else if ( $isclosed ) {
+            echo $OUTPUT->box(get_string('expired', 'jclic', userdate($jclic->timedue)), 'generalbox boxaligncenter'); 
+        } else {
+            if ($jclic->maxattempts<0 || $attempts < $jclic->maxattempts){
+              echo '<div id="jclic_applet" style="text-align:center;padding-top:10px;">';
+              echo '</div>';
+              $PAGE->requires->js('/mod/jclic/jclicplugin.js');
+              $PAGE->requires->js('/mod/jclic/jclic.js');
+              $params = get_object_vars($jclic);
+              $params['jclic_url'] = jclic_get_url($jclic, $context);
+              $params['jclic_path'] = jclic_get_server();
+              $params['jclic_service'] = jclic_get_path().'/mod/jclic/action/beans.php';
+              $params['jclic_user'] = $USER->id;
+              $params['jclic_lap'] = $CFG->jclic_lap;
+              $params['jclic_protocol'] = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
+              $PAGE->requires->js_init_call('M.mod_jclic.init', array($params));
+            }else{
+              echo "<br/><br/>".$strnoattempts;
+            }        
+        }
     }
     
     function jclic_get_url($jclic, $context){

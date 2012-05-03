@@ -84,13 +84,15 @@ $string['exiturl']='Exit URL';
 
 /* Revision Moodle 2.X */
 $string['availabledate'] = 'Available from';
-$string['closebeforeopen'] = 'Could not update the jclic. You have specified a close date before the open date.';
+$string['closebeforeopen'] = 'Could not update the jclic. You have specified a due date before the available date.';
 $string['duedate'] = 'Due date';
+$string['expired'] = 'Sorry, this activity closed on {$a} and is no longer available';
 $string['filetypeexternal'] = 'External JClic package';
 $string['filetypelocal'] = 'Uploaded JClic package';
 $string['invalidurl'] = 'Invalid URL specified';
 $string['jclic'] = 'JClic';
 $string['modulename_help'] = 'Use the jclic module for... | The jclic module allows...';
+$string['notopenyet'] = 'Sorry, this activity is not available until {$a}';
 $string['pluginadministration'] = 'JClic administration';
 $string['pluginname'] = 'JClic';
 $string['urledit'] = 'JClic activity file';

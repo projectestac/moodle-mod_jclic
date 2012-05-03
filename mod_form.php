@@ -135,7 +135,7 @@ class mod_jclic_mod_form extends moodleform_mod {
             $draftitemid = file_get_submitted_draft_itemid('jclicfile');
             file_prepare_draft_area($draftitemid, $this->context->id, 'mod_jclic', 'content', 0, jclic_get_filemanager_options());
             $default_values['jclicfile'] = $draftitemid;
-        }        
+        } 
     }
     
     public function validation($data, $files) {
@@ -168,12 +168,12 @@ class mod_jclic_mod_form extends moodleform_mod {
     function set_data($default_values) {
         $default_values = (array)$default_values;
 
-        if (isset($default_values['filetype']) and isset($default_values['url'])) {
-            switch ($default_values['filetype']) {
-                case JCLIC_FILE_TYPE_LOCAL :
-                case JCLIC_FILE_TYPE_EXTERNAL:
-                    $default_values['jclicurl'] = $default_values['url'];
-            }
+        if (preg_match('/(http:\/\/|https:\/\/|www).*\/*.jclic.zip$/i', $default_values['url'])) {
+            $default_values['filetype'] = JCLIC_FILE_TYPE_EXTERNAL;
+            $default_values['jclicurl'] = $default_values['url'];
+        } else{
+            $default_values['filetype'] = JCLIC_FILE_TYPE_LOCAL;
+            $default_values['jclicfile'] = $default_values['url'];            
         }
         unset($default_values['url']);
 
