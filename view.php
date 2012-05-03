@@ -66,7 +66,7 @@ $PAGE->set_context($context);
 
 jclic_view_header($jclic, $cm, $course);
 jclic_view_intro($jclic, $cm);
-jclic_view_dates();
+jclic_view_dates($jclic, $cm);
 
 if (has_capability('mod/jclic:grade', $context, $USER->id, false)){
     // Show students list with their results

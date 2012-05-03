@@ -112,10 +112,35 @@ defined('MOODLE_INTERNAL') || die();
      *
      * Prints the jclic start and end dates in a box.
      */
-    function jclic_view_dates() {
+    function jclic_view_dates($jclic, $cm) {
         global $OUTPUT;
-    }
+        
+        if (!$jclic->timeavailable && !$jclic->timedue) {
+            return;
+        }
 
+        echo $OUTPUT->box_start('generalbox boxaligncenter', 'dates');
+        if ($jclic->timeavailable) {
+            echo '<div class="title-time">'.get_string('availabledate','assignment').': </div>';
+            echo '<div class="data-time">'.userdate($jclic->timeavailable).'</div>';
+        }
+        if ($jclic->timedue) {
+            echo '<div class="title-time">'.get_string('duedate','assignment').': </div>';
+            echo '<div class="data-time">'.userdate($jclic->timedue).'</div>';
+        }
+/*        echo '<table>';
+        if ($jclic->timeavailable) {
+            echo '<tr><td class="c0">'.get_string('availabledate','assignment').':</td>';
+            echo '    <td class="c1">'.userdate($jclic->timeavailable).'</td></tr>';
+        }
+        if ($jclic->timedue) {
+            echo '<tr><td class="c0">'.get_string('duedate','assignment').':</td>';
+            echo '    <td class="c1">'.userdate($jclic->timedue).'</td></tr>';
+        }
+        echo '</table>';*/
+        echo $OUTPUT->box_end();
+    }
+    
     /**
      * Display the jclic applet
      *
@@ -151,20 +176,23 @@ defined('MOODLE_INTERNAL') || die();
         global $CFG;
         
         $url = '';
-        
-        $fs = get_file_storage();
-        $files = $fs->get_area_files($context->id, 'mod_jclic', 'content', 0, 'sortorder DESC, id ASC', false);
-        if (count($files) < 1) {
-            //resource_print_filenotfound($resource, $cm, $course);
-            die;
+        if (preg_match('/(http:\/\/|https:\/\/|www).*\/*.jclic.zip$/i', $jclic->url)) {
+            $url = $jclic->url;
         } else {
-            $file = reset($files);
-            unset($files);
+            $fs = get_file_storage();
+            $files = $fs->get_area_files($context->id, 'mod_jclic', 'content', 0, 'sortorder DESC, id ASC', false);
+            if (count($files) < 1) {
+                //resource_print_filenotfound($resource, $cm, $course);
+                die;
+            } else {
+                $file = reset($files);
+                unset($files);
+            }
+
+            $path = '/'.$context->id.'/mod_jclic/content/0'.$file->get_filepath().$file->get_filename();
+            $url = file_encode_url($CFG->wwwroot.'/pluginfile.php', $path, false);            
         }
-
-        $path = '/'.$context->id.'/mod_jclic/content/0'.$file->get_filepath().$file->get_filename();
-        $url = file_encode_url($CFG->wwwroot.'/pluginfile.php', $path, false);
-
+        
         return $url;
     }
 

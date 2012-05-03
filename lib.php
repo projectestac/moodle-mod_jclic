@@ -47,6 +47,13 @@ if (!isset($CFG->jclic_lap)) {
 define('JCLIC_FILE_TYPE_LOCAL', 'local');
 define('JCLIC_FILE_TYPE_EXTERNAL', 'external');
 
+/** Include eventslib.php */
+require_once($CFG->libdir.'/eventslib.php');
+/** Include formslib.php */
+require_once($CFG->libdir.'/formslib.php');
+/** Include calendar/lib.php */
+require_once($CFG->dirroot.'/calendar/lib.php');
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Moodle core API                                                            //

@@ -88,6 +88,7 @@ $string['closebeforeopen'] = 'Could not update the jclic. You have specified a c
 $string['duedate'] = 'Due date';
 $string['filetypeexternal'] = 'External JClic package';
 $string['filetypelocal'] = 'Uploaded JClic package';
+$string['invalidurl'] = 'Invalid URL specified';
 $string['jclic'] = 'JClic';
 $string['modulename_help'] = 'Use the jclic module for... | The jclic module allows...';
 $string['pluginadministration'] = 'JClic administration';

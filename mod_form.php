@@ -156,8 +156,8 @@ class mod_jclic_mod_form extends moodleform_mod {
             }
         } else if ($type === JCLIC_FILE_TYPE_EXTERNAL) {
             $reference = $data['jclicurl'];
-            if (!preg_match('/(http:\/\/|https:\/\/|www).*\/jclic.zip$/i', $reference)) {
-                $errors['packageurl'] = get_string('invalidurl', 'jclic');
+            if (!preg_match('/(http:\/\/|https:\/\/|www).*\/*.jclic.zip$/i', $reference)) {
+                $errors['jclicurl'] = get_string('invalidurl', 'jclic');
             }
         }
 
