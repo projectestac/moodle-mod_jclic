@@ -66,9 +66,9 @@ $PAGE->set_context($context);
 
 jclic_view_header($jclic, $cm, $course);
 jclic_view_intro($jclic, $cm);
-jclic_view_dates($jclic, $cm);
 
 if (has_capability('mod/jclic:grade', $context, $USER->id, false)){
+    jclic_view_dates($jclic, $cm);
     // Show students list with their results
     require_once($CFG->libdir.'/gradelib.php');
     $perpage = optional_param('perpage', 10, PARAM_INT);

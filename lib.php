@@ -72,14 +72,14 @@ function jclic_supports($feature) {
     switch($feature) {
         case FEATURE_GROUPS:                  return true;
 //        case FEATURE_GROUPINGS:               return true;
-//        case FEATURE_GROUPMEMBERSONLY:        return true;*/
+//        case FEATURE_GROUPMEMBERSONLY:        return true;
         case FEATURE_MOD_INTRO:               return true;
 //        case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
         case FEATURE_GRADE_HAS_GRADE:         return true;
 //        case FEATURE_GRADE_OUTCOMES:          return true;
 //        case FEATURE_RATE:                    return true;
-//        case FEATURE_BACKUP_MOODLE2:          return true;
-//        case FEATURE_SHOW_DESCRIPTION:        return true;*/
+        case FEATURE_BACKUP_MOODLE2:          return true;
+        case FEATURE_SHOW_DESCRIPTION:        return true;
 //        case FEATURE_ADVANCED_GRADING:        return true;
         default:                        return null;
     }
@@ -227,7 +227,7 @@ function jclic_delete_instance($id) {
     $result = true;
     $rs =  $DB->get_records('jclic_sessions', array('jclicid' => $id));
     foreach($rs as $session){
-        if (!$DB->delete_records('jclic_activities', array('session_id' => $rs->session_id))){
+        if (!$DB->delete_records('jclic_activities', array('session_id' => $session->session_id))){
             $result = false;
             exit;
         }

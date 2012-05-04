@@ -112,14 +112,16 @@ defined('MOODLE_INTERNAL') || die();
      *
      * Prints the jclic start and end dates in a box.
      */
-    function jclic_view_dates($jclic, $cm) {
+    function jclic_view_dates($jclic, $cm, $timenow=null) {
         global $OUTPUT;
         
         if (!$jclic->timeavailable && !$jclic->timedue) {
             return;
         }
+        
+        if (is_null($timenow)) $timenow = time();
 
-        echo $OUTPUT->box_start('generalbox boxaligncenter', 'dates');
+        echo $OUTPUT->box_start('generalbox boxaligncenter jclicdates', 'dates');
         if ($jclic->timeavailable) {
             echo '<div class="title-time">'.get_string('availabledate','assignment').': </div>';
             echo '<div class="data-time">'.userdate($jclic->timeavailable).'</div>';
@@ -135,13 +137,12 @@ defined('MOODLE_INTERNAL') || die();
      * Display the jclic applet
      *
      */
-    function jclic_view_applet($jclic, $context) {
+    function jclic_view_applet($jclic, $context, $timenow=null) {
         global $OUTPUT, $PAGE, $CFG, $USER;
         
         $strshow_results = get_string('show_results', 'jclic');
-        $strnoattempts  = get_string('msg_noattempts', 'jclic');
         
-        $timenow = time();
+        if (is_null($timenow)) $timenow = time();
         $isopen = (empty($jclic->timeavailable) || $jclic->timeavailable < $timenow);
         $isclosed = (!empty($jclic->timedue) && $jclic->timedue < $timenow);
         $sessions = jclic_get_sessions($jclic->id,$USER->id);
@@ -151,9 +152,9 @@ defined('MOODLE_INTERNAL') || die();
         }
         
         if (!$isopen){
-            echo $OUTPUT->box(get_string('notopenyet', 'jclic', userdate($jclic->timeavailable)), 'generalbox boxaligncenter');
+            echo $OUTPUT->box(get_string('notopenyet', 'jclic', userdate($jclic->timeavailable)), 'generalbox boxaligncenter jclicdates');
         } else if ( $isclosed ) {
-            echo $OUTPUT->box(get_string('expired', 'jclic', userdate($jclic->timedue)), 'generalbox boxaligncenter'); 
+            echo $OUTPUT->box(get_string('expired', 'jclic', userdate($jclic->timedue)), 'generalbox boxaligncenter jclicdates'); 
         } else {
             if ($jclic->maxattempts<0 || $attempts < $jclic->maxattempts){
               echo '<div id="jclic_applet" style="text-align:center;padding-top:10px;">';
@@ -169,8 +170,9 @@ defined('MOODLE_INTERNAL') || die();
               $params['jclic_protocol'] = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
               $PAGE->requires->js_init_call('M.mod_jclic.init', array($params));
             }else{
-              echo "<br/><br/>".$strnoattempts;
-            }        
+                echo $OUTPUT->box(get_string('msg_noattempts', 'jclic'), 'generalbox boxaligncenter');
+            }
+            jclic_view_dates($jclic, $context, $timenow);            
         }
     }
     

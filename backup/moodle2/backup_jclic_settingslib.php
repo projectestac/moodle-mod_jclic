@@ -16,11 +16,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Definition of log events
- *
- * NOTE: this is an example how to insert log event during installation/update.
- * It is not really essential to know about it, but these logs were created as example
- * in the previous 1.9 jclic.
  *
  * @package    mod
  * @subpackage jclic
@@ -29,12 +24,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-global $DB;
-
-$logs = array(
-    array('module'=>'jclic', 'action'=>'add', 'mtable'=>'jclic', 'field'=>'name'),
-    array('module'=>'jclic', 'action'=>'view', 'mtable'=>'jclic', 'field'=>'name'),
-    array('module'=>'jclic', 'action'=>'update', 'mtable'=>'jclic', 'field'=>'name'),
-);
+ // This activity has not particular settings but the inherited from the generic
+ // backup_activity_task so here there isn't any class definition, like the ones
+ // existing in /backup/moodle2/backup_settingslib.php (activities section)

@@ -64,6 +64,7 @@ class mod_jclic_mod_form extends moodleform_mod {
         // Adding the standard "intro" and "introformat" fields
         $this->add_intro_editor();
         
+        
         $mform->addElement('date_time_selector', 'timeavailable', get_string('availabledate', 'jclic'), array('optional'=>true));
         $mform->addElement('date_time_selector', 'timedue', get_string('duedate', 'jclic'), array('optional'=>true));
         
@@ -168,12 +169,14 @@ class mod_jclic_mod_form extends moodleform_mod {
     function set_data($default_values) {
         $default_values = (array)$default_values;
 
-        if (preg_match('/(http:\/\/|https:\/\/|www).*\/*.jclic.zip$/i', $default_values['url'])) {
-            $default_values['filetype'] = JCLIC_FILE_TYPE_EXTERNAL;
-            $default_values['jclicurl'] = $default_values['url'];
-        } else{
-            $default_values['filetype'] = JCLIC_FILE_TYPE_LOCAL;
-            $default_values['jclicfile'] = $default_values['url'];            
+        if (isset($default_values['url'])) {
+            if (preg_match('/(http:\/\/|https:\/\/|www).*\/*.jclic.zip$/i', $default_values['url'])) {
+                $default_values['filetype'] = JCLIC_FILE_TYPE_EXTERNAL;
+                $default_values['jclicurl'] = $default_values['url'];
+            } else{
+                $default_values['filetype'] = JCLIC_FILE_TYPE_LOCAL;
+                $default_values['jclicfile'] = $default_values['url'];            
+            }
         }
         unset($default_values['url']);
 
