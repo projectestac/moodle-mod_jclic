@@ -104,20 +104,20 @@ function xmldb_jclic_upgrade($oldversion) {
     }
     
 */
-    if ($oldversion < 2012042600) {
-        // Rename field maxgrade on table jclic to grade
-        $table = new xmldb_table('jclic');
-        $field = new xmldb_field('maxgrade', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'avaluation');
-        $dbman->change_field_type($table, $field);
-        $dbman->rename_field($table, $field, 'grade');
-
-        // jclic savepoint reached
-        upgrade_mod_savepoint(true, 2012042600, 'jclic');
-    }
-    
     if ($oldversion < 2012042700) {
-        // Rename field maxgrade on table jclic to grade
+        // Add fields grade, timeavailable and timedue on table jclic
         $table = new xmldb_table('jclic');
+        $field = new xmldb_field('grade', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'maxgrade');
+        $dbman->add_field($table, $field);
+        
+        // Update jclic.grade with the jclic.max_grade value
+        if ($jclics = $DB->get_records('jclic')){
+            foreach($jclics as $jclic){
+                $jclic->grade= $jclic->maxgrade;
+                $DB->update_record("jclic", $jclic);
+            }
+        }
+
         $field = new xmldb_field('timeavailable', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, '0', 'exiturl');
         $dbman->add_field($table, $field);
 
@@ -126,6 +126,52 @@ function xmldb_jclic_upgrade($oldversion) {
         
         // jclic savepoint reached
         upgrade_mod_savepoint(true, 2012042700, 'jclic');
+    }
+    
+    if ($oldversion < 2012050703) {
+        // Remove unique restriction for jclic_sessions.session_id field
+        $table = new xmldb_table('jclic_sessions');
+        $key = new xmldb_index('session_id', XMLDB_INDEX_UNIQUE, array('session_id'));
+        $dbman->drop_index($table, $key);
+        
+        // Copy jclic_sessions.id to jclic_sessions.session_id and update jclic_activities.session_id
+        if ($sessions = $DB->get_records('jclic_sessions')){
+            foreach($sessions as $session){
+                $sql = 'UPDATE {jclic_activities} SET session_id=? WHERE session_id=? ';
+                $params = array($session->id, $session->session_id);
+                $DB->execute($sql, $params);
+                $session->session_id = $session->id;
+                $DB->update_record("jclic_sessions", $session);
+            }
+        }
+
+/* REMOVED: Not necessary if jclic_sessions.id = jclic_sessions.session_id        
+        // Add field sessionid on table jclic_activities
+        $table = new xmldb_table('jclic_activities');
+        $field = new xmldb_field('sessionid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'id');
+        $dbman->add_field($table, $field);
+        
+        // Add foreig key (to avoid problems with the name it's necessary to remove this key first)
+        $key = new xmldb_key('jclic_activities_session_id', XMLDB_KEY_FOREIGN, array('session_id'), 'jclic_sessions', array('session_id'));
+        $dbman->drop_key($table, $key);
+        $dbman->add_key($table, $key);
+        
+        $key = new xmldb_key('jclic_activities_sessionid', XMLDB_KEY_FOREIGN, array('sessionid'), 'jclic_sessions', array('id'));
+        $dbman->add_key($table, $key);
+
+        // Copy jclic_sessions.id to jclic_activities.sessionid 
+        if ($sessions = $DB->get_records('jclic_sessions')){
+            foreach($sessions as $session){
+                $sql = 'UPDATE {jclic_activities} SET sessionid=? WHERE session_id=? ';
+                $params = array($session->id, $session->session_id);
+                $DB->execute($sql, $params);
+            }
+        }
+ 
+*/
+        
+        // jclic savepoint reached
+        upgrade_mod_savepoint(true, 2012050703, 'jclic'); 
     }
     
     // Final return of upgrade result (true, all went good) to Moodle.

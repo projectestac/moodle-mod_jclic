@@ -83,10 +83,13 @@ switch($beans[0]['ID']){
 		$jclic_session->jclicid=$beans[0]['PARAMS']['key'];            
 		$jclic_session->user_id=$beans[0]['PARAMS']['user'];
                 $jclic_session->session_datetime = date('Y-m-d h:i:s', round($beans[0]['PARAMS']['time']/1000));
-		$jclic_session->session_id=$beans[0]['PARAMS']['user'].'_'.$beans[0]['PARAMS']['time'];
+//		$jclic_session->session_id=$beans[0]['PARAMS']['user'].'_'.$beans[0]['PARAMS']['time'];
 		$jclic_session->project_name=$beans[0]['PARAMS']['project'];
                 try{
-                    $DB->insert_record("jclic_sessions", $jclic_session);
+                    $sessionid = $DB->insert_record("jclic_sessions", $jclic_session);
+                    $jclic_session->id = $sessionid;
+                    $jclic_session->session_id = $sessionid;
+                    $DB->update_record("jclic_sessions", $jclic_session);
                 }catch (Exception $e){
                     echo 'Caught exception: ',  $e->getMessage(), "\n";
                     print_r($e);
@@ -108,6 +111,7 @@ switch($beans[0]['ID']){
 		echo '</bean>';
 	    break;
 	case "multiple":
+                $jclic_activity = null;
 		foreach ($beans as $bean){
 			if ($bean['ID']=='add activity'){
 				$jclic_activity->session_id=$bean['PARAMS']['session'];
@@ -118,18 +122,16 @@ switch($beans[0]['ID']){
 				$jclic_activity->score=$bean['ACTIVITY']['score'];
 				$jclic_activity->grade=$jclic_activity->score;
 				$jclic_activity->qualification=getPrecision($bean['ACTIVITY']['minActions'], $bean['ACTIVITY']['actions'], ''.$bean['ACTIVITY']['solved'], $bean['ACTIVITY']['score']);
-				$jclic_activity->total_time=$bean['ACTIVITY']['time'];
+				$jclic_activity->total_time=$bean['ACTIVITY']['time'];                                
 				$DB->insert_record("jclic_activities", $jclic_activity);
-				
 			}			
 		}
-                if ($jclic_session = $DB->get_record('jclic_sessions', array('session_id' => $jclic_activity->session_id) )){
+                if (isset($jclic_activity) && $jclic_session = $DB->get_record('jclic_sessions', array('session_id' => $jclic_activity->session_id))){
                     $jclic = $DB->get_record('jclic', array('id' => $jclic_session->jclicid) );
                     $cm = get_coursemodule_from_instance('jclic', $jclic->id, $jclic->course, false, MUST_EXIST);
                     $jclic->cmidnumber = $cm->idnumber;
                     jclic_update_grades($jclic, $jclic_session->user_id);
                 }
-		//jclic_update_gradebook($jclic_activity);
 
 		echo '<?xml version="1.0" encoding="UTF-8"?'.'>';
 		echo '<bean id="add activity">';

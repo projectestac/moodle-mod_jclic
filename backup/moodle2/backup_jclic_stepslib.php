@@ -51,7 +51,7 @@ class backup_jclic_activity_structure_step extends backup_activity_structure_ste
         $activities = new backup_nested_element('sessionactivities');
  
         $activity = new backup_nested_element('sessionactivity', array('id'), array(
-            'activity_id', 'activity_name', 'num_actions', 'score',
+            'session_id', 'activity_id', 'activity_name', 'num_actions', 'score',
             'activity_solved', 'qualification', 'total_time', 'activity_code'));
         
         // Build the tree

@@ -69,12 +69,14 @@ class restore_jclic_activity_structure_step extends restore_activity_structure_s
         $oldid = $data->id;
 
         $data->jclicid = $this->get_new_parentid('jclic');
-        $microtime_arr=split(' ',microtime());
-        $data->session_id = $data->user_id.'_'.$microtime_arr[1].round($microtime_arr[0]*1000);
         $data->user_id = $this->get_mappingid('user', $data->user_id);
 
         $data->session_datetime = date('Y-m-d h:i:s', $this->apply_date_offset(strtotime($data->session_datetime)));
+        $data->session_id = time();
         $newitemid = $DB->insert_record('jclic_sessions', $data);
+        $data->id = $newitemid;
+        $data->session_id = $newitemid;
+        $DB->update_record('jclic_sessions', $data);
         $this->set_mapping('jclic_session', $oldid, $newitemid);
     }
 
@@ -84,12 +86,9 @@ class restore_jclic_activity_structure_step extends restore_activity_structure_s
         $data = (object)$data;
         $oldid = $data->id;
 
-        //$data->session_id = $this->get_new_parentid('jclic_session');
-        //$session = $this->get_mapping('jclic_session', $this->get_old_parentid('jclic_session'));
-        //echo '##########SESSION '.$this->get_old_parentid('jclic_session');print_r($session);
-        
-
-        //$newitemid = $DB->insert_record('jclic_activities', $data);
+        $oldsessionid = $data->session_id;
+        $data->session_id = $this->get_mappingid('jclic_session', $oldsessionid);
+        $newitemid = $DB->insert_record('jclic_activities', $data);
         // No need to save this mapping as far as nothing depend on it
         // (child paths, file areas nor links decoder)
     }
