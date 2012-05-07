@@ -160,12 +160,9 @@ if (has_capability('mod/jclic:grade', $context, $USER->id, false)){
 
     $ufields = user_picture::fields('u', $extrafields);
     if (!empty($users)) {
-        $select = "SELECT $ufields,
-                          j.id AS sessionid ";
+        $select = "SELECT $ufields ";
 
         $sql = 'FROM {user} u '.
-               'LEFT JOIN {jclic_sessions} j ON u.id = j.user_id
-                AND j.jclicid = '.$jclic->id.' '.
                'WHERE '.$where.'u.id IN ('.implode(',',$users).') ';
 
         $ausers = $DB->get_records_sql($select.$sql.$sort, $params, $table->get_page_start(), $table->get_page_size());
@@ -174,7 +171,7 @@ if (has_capability('mod/jclic:grade', $context, $USER->id, false)){
         $offset = $page * $perpage; //offset used to calculate index of student in that particular query, needed for the pop up to know who's next
 
         if ($ausers !== false) {
-            $grading_info = grade_get_grades($course->id, 'mod', 'jclic', $jclic->id, array_keys($ausers));
+            //$grading_info = grade_get_grades($course->id, 'mod', 'jclic', $jclic->id, array_keys($ausers));
             $endposition = $offset + $perpage;
             $currentposition = 0;
             
@@ -268,8 +265,9 @@ if (has_capability('mod/jclic:grade', $context, $USER->id, false)){
                         }
                     } 
  */
-                    $grade = '5'; //@TODO: Replace for the correct value (temporaly value for testing)
-                    $totaltime = '20s'; //@TODO: Replace for the correct value  (temporaly value for testing)
+                    $sessions_summary = jclic_get_sessions_summary($jclic->id, $auser->id);
+                    $grade = $sessions_summary->score; 
+                    $totaltime = $sessions_summary->totaltime; 
                     $userlink = '<a href="' . $CFG->wwwroot . '/user/view.php?id=' . $auser->id . '&amp;course=' . $course->id . '">' . fullname($auser, has_capability('moodle/site:viewfullnames', $context)) . '</a>';
                     $extradata = array();
                     foreach ($extrafields as $field) {
