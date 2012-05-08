@@ -73,31 +73,34 @@ echo $OUTPUT->header();
 
 $sessions = jclic_get_sessions($jclic->id, $USER->id);
 
-if (sizeof($sessions)>0){    
+if (sizeof($sessions)>0){
+    $PAGE->requires->js('/mod/jclic/jclic.js');
     $table = new html_table();
-    $table->head = array($strstarttime, $strscore, $strtotaltime, $strdone, $stractivitysolved, $strattempts);
+    $table->head = array($strstarttime, $strscore, $strtotaltime, get_string('solveddone', 'jclic'), $strattempts);
     
     // Print session data
     foreach($sessions as $session){
-        $table->data[] = array(date('d/m/Y H:i', strtotime($session->starttime)), $session->score.'%', $session->totaltime, $session->done,$session->solved,$session->attempts.($jclic->maxattempts>0?'/'.$jclic->maxattempts:''));
+        $starttime='<a href="#" onclick="showSessionActivities(\''.$session->session_id.'\');">'.date('d/m/Y H:i', strtotime($session->starttime)).'</a>';
+        $table->data[] = array($starttime, $session->score.'%', $session->totaltime, $session->solved.' / '.$session->done,$session->attempts.($jclic->maxattempts>0?'/'.$jclic->maxattempts:''));
         // Print activities for each session
-        $session_activities_html= get_session_activities($session->session_id);
+        $session_activities_html= jclic_get_session_activities_html($session->session_id);
         $cell = new html_table_cell();
         $cell->text = $session_activities_html;
-        $cell->colspan = 6;
+        $cell->colspan = 5;
         $row = new html_table_row();
+        $row->id = 'session_'.$session->session_id;
+        $row->attributes = array('class' => 'jclic-session-activities-hidden') ;
         $row->cells[] = $cell;     
         $table->data[] = $row;
     }
     
     if (sizeof($sessions)>1){
-        $sessions_summary = jclic_get_sessions_summary($jclic->id,$USER->id);
-        $table->data[] = array('<b>'.$strtotals.'</b>', '<b>'.$sessions_summary->score.'%</b>', '<b>'.$sessions_summary->totaltime.'</b>','<b>'.$sessions_summary->done.'</b>','<b>'.$sessions_summary->solved.'</b>','<b>'.$sessions_summary->attempts.'</b>');
-        //jclic_print_row(array ('<b>'.$strtotals.'</b>', '<b>'.$sessions_summary->score.'%</b>', '<b>'.$sessions_summary->totaltime.'</b>','<b>'.$sessions_summary->done.'</b>','<b>'.$sessions_summary->solved.'</b>','<b>'.$sessions_summary->attempts.'</b>'),$general_align);
+        $sessions_summary = jclic_get_sessions_summary($jclic->id,$USER->id);                
+        $table->data[] = array('<b>'.$strtotals.'</b>', '<b>'.$sessions_summary->score.'%</b>', '<b>'.$sessions_summary->totaltime.'</b>','<b>'.$sessions_summary->solved.' / '.$sessions_summary->done.'</b>','<b>'.$sessions_summary->attempts.'</b>');
     }
     echo html_writer::table($table);
 } else{
   echo '<br><center>'.$strmsgnosessions.'</center>';
 }
 
-?>		
+echo $OUTPUT->footer();

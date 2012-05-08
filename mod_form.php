@@ -184,4 +184,9 @@ class mod_jclic_mod_form extends moodleform_mod {
         parent::set_data($default_values);
     }
     
+    function completion_rule_enabled($data) {
+        return !empty($data['completionsubmit']);
+    }
+    
+    
 }

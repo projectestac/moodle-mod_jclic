@@ -74,7 +74,8 @@ function jclic_supports($feature) {
 //        case FEATURE_GROUPINGS:               return true;
 //        case FEATURE_GROUPMEMBERSONLY:        return true;
         case FEATURE_MOD_INTRO:               return true;
-//        case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
+        case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
+//        case FEATURE_COMPLETION_HAS_RULES:    return true;
         case FEATURE_GRADE_HAS_GRADE:         return true;
 //        case FEATURE_GRADE_OUTCOMES:          return true;
 //        case FEATURE_RATE:                    return true;
@@ -118,7 +119,7 @@ function jclic_add_instance(stdClass $jclic, mod_jclic_mod_form $mform = null) {
     
     // Store the JClic and verify
     if ($mform->get_data()->filetype === JCLIC_FILE_TYPE_LOCAL) {
-        jclic_save_file($jclic);
+        jclic_set_mainfile($jclic);
     }
     
     if ($jclic->timedue) {
@@ -165,7 +166,7 @@ function jclic_update_instance(stdClass $jclic, mod_jclic_mod_form $mform = null
     
     $result = $DB->update_record('jclic', $jclic);
     if ($result && $mform->get_data()->filetype === JCLIC_FILE_TYPE_LOCAL) {
-        jclic_save_file($jclic);
+        jclic_set_mainfile($jclic);
     }
     
     if ($result && $jclic->timedue) {
@@ -675,4 +676,85 @@ function jclic_extend_navigation(navigation_node $navref, stdclass $course, stdc
  * @param navigation_node $jclicnode {@link navigation_node}
  */
 function jclic_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $jclicnode=null) {
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Reset                                                                      //
+////////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * Removes all grades from gradebook
+ * @param int $courseid
+ * @param string optional type
+ */
+function jclic_reset_gradebook($courseid) {
+    global $CFG, $DB;
+
+    $params = array('courseid'=>$courseid);
+
+    $sql = "SELECT j.*, cm.idnumber as cmidnumber, j.course as courseid
+              FROM {jclic} j, {course_modules} cm, {modules} m
+             WHERE m.name='jclic' AND m.id=cm.module AND cm.instance=j.id AND j.course=:courseid ";
+
+    if ($jclics = $DB->get_records_sql($sql, $params)) {
+        foreach ($jclics as $jclic) {
+            jclic_grade_item_update($jclic, 'reset');
+        }
+    }
+}
+
+/**
+ * This function is used by the reset_course_userdata function in moodlelib.
+ * This function will remove all posts from the specified jclic
+ * and clean up any related data.
+ * @param $data the data submitted from the reset course.
+ * @return array status array
+ */
+function jclic_reset_userdata($data) {
+    global $CFG, $DB;
+
+    $componentstr = get_string('modulenameplural', 'choice');
+    $status = array();
+ 
+    if (!empty($data->reset_jclic_deleteallsessions)) {
+        $params = array('courseid' => $data->courseid);
+        $select = 'session_id IN'
+            . " (SELECT s.session_id FROM {jclic_sessions} s"
+            . " INNER JOIN {jclic} j ON s.jclicid = j.id"
+            . " WHERE j.course = :courseid)";
+        $DB->delete_records_select('jclic_activities', $select, $params);
+
+        $select = 'jclicid IN'
+            . " (SELECT j.id FROM {jclic} j"
+            . " WHERE j.course = :courseid)";
+        $DB->delete_records_select('jclic_sessions', $select, $params);
+        
+        // remove all grades from gradebook
+        if (empty($data->reset_gradebook_grades)) {
+            jclic_reset_gradebook($data->courseid);
+        }
+        
+        $status[] = array('component'=>$componentstr, 'item'=>get_string('deleteallsessions', 'jclic'), 'error'=>false);
+    }
+ 
+   return $status;
+}
+
+/**
+ * Implementation of the function for printing the form elements that control
+ * whether the course reset functionality affects the jclic.
+ * @param $mform form passed by reference
+ */
+function jclic_reset_course_form_definition(&$mform) {
+    $mform->addElement('header', 'jclicheader', get_string('modulenameplural', 'jclic'));
+    $mform->addElement('checkbox', 'reset_jclic_deleteallsessions', get_string('deleteallsessions', 'jclic'));
+    
+}
+
+/**
+ * Course reset form defaults.
+ */
+function jclic_reset_course_form_defaults($course) {
+    return array('reset_jclic_deleteallsessions' => 1);
 }

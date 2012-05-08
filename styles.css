@@ -9,3 +9,11 @@
 #dates .data-time{float:left;}
 #dates.generalbox{height:30px;}
 .jclicdates{margin: 10px;}
+
+#jclic-summary-all-link {float:left;}
+#jclic-preview-link {float:right;}
+
+.summary-row{font-weight: bold;}
+
+.jclic-session-activities-visible{visibility: visible; ;}
+.jclic-session-activities-hidden{visibility: hidden; display: none;}

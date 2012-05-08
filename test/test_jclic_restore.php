@@ -4,7 +4,7 @@ define('CLI_SCRIPT', 1);
 require_once('../../../config.php');
 require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
 
-$folder = 'b5dbb55e2e834b3132e915395ed6917f'; // home=c184c283a0e5788c99345c497177b4abb80cf134 :: work=b5dbb55e2e834b3132e915395ed6917f
+$folder = '06199f4ab82d075d19672f3bb42a285a'; // home=06199f4ab82d075d19672f3bb42a285a :: work=b5dbb55e2e834b3132e915395ed6917f
 $userid = 2;
 $fullname = 'JClic restore';
 $shortname = 'jclic_restore';
