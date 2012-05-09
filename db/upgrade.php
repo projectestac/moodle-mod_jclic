@@ -92,19 +92,13 @@ function xmldb_jclic_upgrade($oldversion) {
     }
     
 //===== 1.9.0 upgrade line ======//
-    /**
-     * @todo: add upgrading code from 1.9 (+ new file storage system)
-     */
-
-/*   
-    if ($oldversion < 2011122903) {
-        require_once($CFG->dirroot.'/mod/jclic/lib.php');
-        jclic_upgrade_grades();
-        upgrade_mod_savepoint(true, 2007101511, 'jclic');
-    }
     
-*/
     if ($oldversion < 2012042700) {
+
+        // Add upgrading code from 1.9 (+ new file storage system)
+        // @TODO: test it!!!!
+        jclic_migrate_files();
+        
         // Add fields grade, timeavailable and timedue on table jclic
         $table = new xmldb_table('jclic');
         $field = new xmldb_field('grade', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'maxgrade');
@@ -144,31 +138,6 @@ function xmldb_jclic_upgrade($oldversion) {
                 $DB->update_record("jclic_sessions", $session);
             }
         }
-
-/* REMOVED: Not necessary if jclic_sessions.id = jclic_sessions.session_id        
-        // Add field sessionid on table jclic_activities
-        $table = new xmldb_table('jclic_activities');
-        $field = new xmldb_field('sessionid', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'id');
-        $dbman->add_field($table, $field);
-        
-        // Add foreig key (to avoid problems with the name it's necessary to remove this key first)
-        $key = new xmldb_key('jclic_activities_session_id', XMLDB_KEY_FOREIGN, array('session_id'), 'jclic_sessions', array('session_id'));
-        $dbman->drop_key($table, $key);
-        $dbman->add_key($table, $key);
-        
-        $key = new xmldb_key('jclic_activities_sessionid', XMLDB_KEY_FOREIGN, array('sessionid'), 'jclic_sessions', array('id'));
-        $dbman->add_key($table, $key);
-
-        // Copy jclic_sessions.id to jclic_activities.sessionid 
-        if ($sessions = $DB->get_records('jclic_sessions')){
-            foreach($sessions as $session){
-                $sql = 'UPDATE {jclic_activities} SET sessionid=? WHERE session_id=? ';
-                $params = array($session->id, $session->session_id);
-                $DB->execute($sql, $params);
-            }
-        }
- 
-*/
         
         // jclic savepoint reached
         upgrade_mod_savepoint(true, 2012050703, 'jclic'); 
