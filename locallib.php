@@ -167,6 +167,7 @@ defined('MOODLE_INTERNAL') || die();
               $params['jclic_path'] = jclic_get_server();
               $params['jclic_service'] = jclic_get_path().'/mod/jclic/action/beans.php';
               $params['jclic_user'] = $USER->id;
+              $params['jclic_jarbase'] = $CFG->jclic_jarbase;
               $params['jclic_lap'] = $CFG->jclic_lap;
               $params['jclic_protocol'] = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? 'https' : 'http';
               $PAGE->requires->js_init_call('M.mod_jclic.init', array($params));
@@ -181,7 +182,7 @@ defined('MOODLE_INTERNAL') || die();
         global $CFG;
         
         $url = '';
-        if (preg_match('/(http:\/\/|https:\/\/|www).*\/*.jclic.zip$/i', $jclic->url)) {
+        if (jclic_is_valid_external_url($jclic->url)) {
             $url = $jclic->url;
         } else {
             $fs = get_file_storage();
@@ -318,6 +319,7 @@ defined('MOODLE_INTERNAL') || die();
     }
 
     function jclic_set_mainfile($data) {
+        $filename = null;
         $fs = get_file_storage();
         $cmid = $data->coursemodule;
         $draftitemid = $data->url;
@@ -332,8 +334,20 @@ defined('MOODLE_INTERNAL') || die();
             // only one file attached, set it as main file automatically
             $file = reset($files);
             file_set_sortorder($context->id, 'mod_jclic', 'content', 0, $file->get_filepath(), $file->get_filename(), 1);
+            $filename = $file->get_filename();
         }
+        return $filename;
     }
+    
+    
+    function jclic_is_valid_external_url($url){
+        return preg_match('/(http:\/\/|https:\/\/|www).*\/*.jclic.zip(\?[a-z+&\$_.-][a-z0-9;:@&%=+\/\$_.-]*)?$/i', $url);
+    }
+
+    function jclic_is_valid_file($filename){
+        return preg_match('/.jclic.zip$/i', $filename);
+    }
+    
     
 ////////////////////////////////////////////////////////////////////////////////
 // Activity sessions                                                          //

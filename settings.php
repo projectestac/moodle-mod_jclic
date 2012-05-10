@@ -28,11 +28,11 @@ defined('MOODLE_INTERNAL') || die;
 if ($ADMIN->fulltree) {
     require_once($CFG->dirroot.'/mod/jclic/lib.php');
 
-    $settings->add(new admin_setting_configtext('jclic_jclicpluginjs', get_string('jclicpluginjs', 'jclic'),
-                       get_string('jclicpluginjs', 'jclic'), JCLIC_DEFAULT_PLUGINJS, PARAM_URL, 60));
+    $settings->add(new admin_setting_configtext('jclic_jarbase', get_string('jclicjarbase', 'jclic'),
+                       get_string('jclicjarbase_help', 'jclic'), JCLIC_DEFAULT_JARBASE, PARAM_URL, 60));
 
     $settings->add(new admin_setting_configtext('jclic_lap', get_string('lap', 'jclic'),
-                       get_string('lap', 'jclic'), JCLIC_DEFAULT_LAP, PARAM_INT));
+                       get_string('lap_help', 'jclic'), JCLIC_DEFAULT_LAP, PARAM_INT));
     
 }
 

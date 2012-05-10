@@ -39,7 +39,6 @@ $string['avaluation_solved'] = 'Solving this number of different activities';
 $string['description'] = 'Description';
 $string['height']='Height';
 $string['hideall']='Show only summaries';
-$string['jclicpluginjs']='Web address where you will find the file <b>jclicplugin.js</b>';
 $string['lastaccess']='Last visited';
 $string['maxattempts'] = 'Maximum number of trials';
 $string['maxgrade'] = 'Score/activities that must be achieved';
@@ -61,7 +60,6 @@ $string['width']='Width';
 /* Revision 20070305 */
 $string['actions']='Actions';
 $string['activity']='Activity';
-$string['lap']='Time between client-server transactions (in seconds)';
 $string['msg_nosessions']='This JClic activity hasn\'t yet any session';
 $string['solved']='Correct';
 $string['time']='Time';
@@ -82,24 +80,34 @@ $string['exiturl']='Exit URL';
 $string['availabledate'] = 'Available from';
 $string['closebeforeopen'] = 'Could not update the jclic. You have specified a due date before the available date.';
 $string['duedate'] = 'Due date';
+$string['exiturl_help'] = 'This is the URL that appears when students finish the last JClic activity.
+    
+To make work this redirection it\'s necessary to associate to the last activity in the Sequences tab the action "Exit JClic" in the Forward arrow section.';
 $string['expired'] = 'Sorry, this activity closed on {$a} and is no longer available';
 $string['filetype'] = 'Type';
-$string['filetype_help'] = 'This setting determines how the package is included in the course. There are up to 4 options:
+$string['filetype_help'] = 'This setting determines how the JClic activity is included in the course. There are up to 2 options:
 
-* Uploaded package - Enables a SCORM package to be chosen via the file picker
-* External SCORM manifest - Enables an imsmanifest.xml URL to be specified. Note: If the URL has a different domain name than your site, then "Downloaded package" is a better option, since otherwise grades are not saved.
-* Downloaded package - Enables a package URL to be specified. The package will be unzipped and saved locally, and updated when the external SCORM package is updated.
-* Local IMS content repository - Enables a package to be selected from within an IMS repository
-* External AICC URL - this URL is the launch URL for a single AICC Activity.  A psuedo package will be constructed around this.';
-$string['filetypeexternal'] = 'External JClic package';
-$string['filetypelocal'] = 'Uploaded JClic package';
-$string['invalidurl'] = 'Invalid URL specified';
+* Uploaded JClic - Enables a valid ".jclic.zip" package to be chosen by the file picker. 
+* External URL - Enables a URL to be specified. Note: The URL must start with http(s) or www and contain a valid "jclic.zip" file.';
+$string['filetypeexternal'] = 'External URL';
+$string['filetypelocal'] = 'Uploaded JClic';
+$string['invalidjclicfile'] = 'Invalid JClic specified. It must have the ".jclic.zip" extension.';
+$string['invalidurl'] = 'Invalid URL specified. It must start with http(s) and has to be a valid ".jclic.zip" file.';
 $string['jclic'] = 'JClic';
+$string['jclicjarbase']='Jar base';
+$string['jclicjarbase_help']='Web address where to locate all the JClic jar files';
 $string['jclicurl'] = 'URL';
 $string['jclicurl_help'] = 'This setting enables a URL for the JClic package to be specified, rather than choosing a file via the file picker.';
 $string['jclicfile'] = 'JClic file';
-$string['jclicfile_help'] = 'The .jlic.zip file containing the JClic files.';
-$string['modulename_help'] = 'Use the jclic module for... | The jclic module allows...';
+$string['jclicfile_help'] = 'The .jclic.zip file containing the JClic files.';
+$string['lap']='Lap';
+$string['lap_help']='Time between client-server transactions (in seconds)';
+$string['modulename_help'] = '<a href="http://clic.xtec.cat" target="_blank">JClic</a> is a project of the Catalan Ministry of Education. 
+    It consists of a set of open source software applications that allow the creation of several types of multimedia educational activities: puzzles, association games, text activities, crosswords, wordsearch games and more. 
+    Besides, the <a href="http://clic.xtec.cat/db/listact_ca.jsp" target="_blank">ClicZone</a> offers a repository where more than a thousand activities are displayed. 
+    It has been created by teachers and other professionals who want to share their work with others.
+
+This module allows teachers to add JClick activities to any course and to track pupils\' results (time spent on each of the activities, number of tries, score...).';
 $string['notopenyet'] = 'Sorry, this activity is not available until {$a}';
 $string['pluginadministration'] = 'JClic administration';
 $string['pluginname'] = 'JClic';
@@ -108,4 +116,4 @@ $string['return_results']='Return to results';
 $string['show_my_results']='Show my results';
 $string['solveddone'] = 'Activities solved / done';
 $string['urledit'] = 'JClic activity file';
-$string['urledit_help'] = 'The URL of the jclic.zip file where you will find the JClic activity package.';
+$string['urledit_help'] = 'The jclic.zip file where you will find the JClic activity package.';

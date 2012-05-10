@@ -27,6 +27,8 @@
 
 defined('MOODLE_INTERNAL') || die;
 
+require_once($CFG->dirroot . '/mod/jclic/locallib.php');
+
 /**
  * Migrate jclic package to new area if found
  * 
@@ -52,7 +54,7 @@ function jclic_migrate_files() {
             $context       = get_context_instance(CONTEXT_MODULE, $jclic->cmid);
             $coursecontext = get_context_instance(CONTEXT_COURSE, $jclic->course);
 
-            if (!preg_match('/(http:\/\/|https:\/\/|www).*\/*.jclic.zip$/i', $jclic->url)) {
+            if (!jclic_is_valid_external_url($jclic->url)) {
                 // first copy local files if found - do not delete in case they are shared ;-)
                 $jclicfile = clean_param($jclic->url, PARAM_PATH);
                 $pathnamehash = sha1("/$coursecontext->id/course/legacy/0/$jclicfile");

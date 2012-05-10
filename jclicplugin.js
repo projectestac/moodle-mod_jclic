@@ -24,7 +24,7 @@ else if(_ie==false){
 
 var jarBase='http://clic.xtec.cat/dist/jclic';
 function setJarBase(base){
-   //jarBase=base;
+   jarBase=base;
 }
 
 var useLanguage=false;

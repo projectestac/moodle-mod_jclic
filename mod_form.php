@@ -84,6 +84,7 @@ class mod_jclic_mod_form extends moodleform_mod {
         $mform->disabledIf('jclicfile', 'filetype', 'noteq', JCLIC_FILE_TYPE_LOCAL);
         
         $mform->addElement('text', 'exiturl', get_string('exiturl', 'jclic'), array('size'=>75));
+        $mform->addHelpButton('exiturl', 'exiturl', 'jclic');
         //$mform->setHelpButton('exiturl', array('exiturl',get_string('exiturl', 'jclic'), 'jclic'), false, 'helpbutton');
         $mform->setDefault('exiturl', '');
         $mform->setType('exiturl', PARAM_RAW);
@@ -140,6 +141,8 @@ class mod_jclic_mod_form extends moodleform_mod {
     }
     
     public function validation($data, $files) {
+        global $USER; 
+        
         $errors = parent::validation($data, $files);
 
         // Check open and close times are consistent.
@@ -150,14 +153,20 @@ class mod_jclic_mod_form extends moodleform_mod {
         
         $type = $data['filetype'];
         if ($type === JCLIC_FILE_TYPE_LOCAL) {
-            if (!empty($data['update'])) {
-                //ok, not required
-            } else if (empty($data['jclicfile'])) {
+            $usercontext = get_context_instance(CONTEXT_USER, $USER->id);
+            $fs = get_file_storage();
+            if (!$files = $fs->get_area_files($usercontext->id, 'user', 'draft', $data['jclicfile'], 'sortorder, id', false)) {
                 $errors['jclicfile'] = get_string('required');
+            } else{
+                $file = reset($files);
+                $filename = $file->get_filename();
+                if (!jclic_is_valid_file($filename)){
+                    $errors['jclicfile'] = get_string('invalidjclicfile', 'jclic');
+                }
             }
         } else if ($type === JCLIC_FILE_TYPE_EXTERNAL) {
             $reference = $data['jclicurl'];
-            if (!preg_match('/(http:\/\/|https:\/\/|www).*\/*.jclic.zip$/i', $reference)) {
+            if (!jclic_is_valid_external_url($reference)) {
                 $errors['jclicurl'] = get_string('invalidurl', 'jclic');
             }
         }
@@ -170,7 +179,7 @@ class mod_jclic_mod_form extends moodleform_mod {
         $default_values = (array)$default_values;
 
         if (isset($default_values['url'])) {
-            if (preg_match('/(http:\/\/|https:\/\/|www).*\/*.jclic.zip$/i', $default_values['url'])) {
+            if (jclic_is_valid_external_url($default_values['url'])) {
                 $default_values['filetype'] = JCLIC_FILE_TYPE_EXTERNAL;
                 $default_values['jclicurl'] = $default_values['url'];
             } else{

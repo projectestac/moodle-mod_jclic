@@ -33,11 +33,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-define('JCLIC_DEFAULT_PLUGINJS', 'http://clic.xtec.cat/dist/jclic/jclicplugin.js');
+define('JCLIC_DEFAULT_JARBASE', 'http://clic.xtec.cat/dist/jclic');
 define('JCLIC_DEFAULT_LAP', 5);
 
-if (!isset($CFG->jclic_jclicpluginjs)) {
-    set_config('jclic_jclicpluginjs', JCLIC_DEFAULT_PLUGINJS);
+if (!isset($CFG->jclic_jarbase)) {
+    set_config('jclic_jarbase', JCLIC_DEFAULT_JARBASE);
 }
 if (!isset($CFG->jclic_lap)) {
     set_config("jclic_lap", "5");
@@ -119,7 +119,9 @@ function jclic_add_instance(stdClass $jclic, mod_jclic_mod_form $mform = null) {
     
     // Store the JClic and verify
     if ($mform->get_data()->filetype === JCLIC_FILE_TYPE_LOCAL) {
-        jclic_set_mainfile($jclic);
+        $filename = jclic_set_mainfile($jclic);
+        $jclic->url = $filename;
+        $DB->update_record('jclic', $jclic);
     }
     
     if ($jclic->timedue) {
@@ -166,7 +168,9 @@ function jclic_update_instance(stdClass $jclic, mod_jclic_mod_form $mform = null
     
     $result = $DB->update_record('jclic', $jclic);
     if ($result && $mform->get_data()->filetype === JCLIC_FILE_TYPE_LOCAL) {
-        jclic_set_mainfile($jclic);
+        $filename = jclic_set_mainfile($jclic);
+        $jclic->url = $filename;
+        $result = $DB->update_record('jclic', $jclic);
     }
     
     if ($result && $jclic->timedue) {

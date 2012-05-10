@@ -26,6 +26,8 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/mod/jclic/locallib.php');
  
 /**
  * JClic conversion handler
@@ -88,7 +90,7 @@ class moodle1_mod_jclic_handler extends moodle1_mod_handler {
         // migrate jclic package file
         $this->fileman->filearea = 'content';
         $this->fileman->itemid   = 0;
-        if (!preg_match('/(http:\/\/|https:\/\/|www).*\/*.jclic.zip$/i', $data['url'])) {
+        if (!jclic_is_valid_external_url($data['url'])) {
             // Migrate file
             $this->fileman->migrate_file('course_files/'.$data['url']);            
         }
