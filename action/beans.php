@@ -112,9 +112,25 @@ switch($beans[0]['ID']){
 		$jclic_session->jclicid=$beans[0]['PARAMS']['key'];            
 		$jclic_session->user_id=$beans[0]['PARAMS']['user'];
                 $jclic_session->session_datetime = date('Y-m-d h:i:s', round($beans[0]['PARAMS']['time']/1000));
+                $jclic_session->session_id='X';  // @TODO: Review
 //		$jclic_session->session_id=$beans[0]['PARAMS']['user'].'_'.$beans[0]['PARAMS']['time'];
 		$jclic_session->project_name=$beans[0]['PARAMS']['project'];
                 try{
+// ALTER TABLE m2jclic_sessions MODIFY (SESSION_DATETIME DATE null);                    
+//                    $params = array('jclicid'=>$jclic_session->jclicid, 'user_id'=>$jclic_session->user_id,
+//                            'session_datetime'=>$jclic_session->session_datetime,'session_id'=>$jclic_session->session_id,
+//                            'project_name'=>$jclic_session->project_name);
+//                    $sql = 'INSERT INTO {jclic_sessions} (jclicid, user_id, session_datetime, session_id, project_name) 
+//                            VALUES (:jclicid,:user_id,:session_datetime,:session_id,:project_name)';
+//                    $sql = 'INSERT INTO {jclic_sessions} (jclicid, user_id, session_datetime, session_id, project_name) 
+//                            VALUES ('.$jclic_session->jclicid.','.$jclic_session->user_id.',\'2008-11-03 11:49:30\',\''.$jclic_session->session_id.'\',\''.$jclic_session->project_name.'\')';
+                    
+                    // Workaround to fix an Oracle's bug when inserting a row with date
+                    if ($CFG->dbtype == 'oci'){
+                        $sql = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
+                        $DB->execute($sql);                        
+                    }
+                    
                     $sessionid = $DB->insert_record("jclic_sessions", $jclic_session);
                     $jclic_session->id = $sessionid;
                     $jclic_session->session_id = $sessionid;
