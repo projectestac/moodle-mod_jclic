@@ -26,6 +26,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot . '/mod/jclic/locallib.php'); // Because it exists (must)
 require_once($CFG->dirroot . '/mod/jclic/backup/moodle2/restore_jclic_stepslib.php'); // Because it exists (must)
 
 /**
@@ -45,6 +46,7 @@ class restore_jclic_activity_task extends restore_activity_task {
      * Define (add) particular steps this activity can have
      */
     protected function define_my_steps() {
+        jclic_normalize_date();
         // JClic only has one structure step
         $this->add_step(new restore_jclic_activity_structure_step('jclic_structure', 'jclic.xml'));
     }

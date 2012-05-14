@@ -95,6 +95,7 @@ function xmldb_jclic_upgrade($oldversion) {
     
     if ($oldversion < 2012042700) {
 
+        require_once("$CFG->dirroot/mod/jclic/db/upgradelib.php");
         // Add upgrading code from 1.9 (+ new file storage system)
         // @TODO: test it!!!!
         jclic_migrate_files();

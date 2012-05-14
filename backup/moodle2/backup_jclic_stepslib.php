@@ -45,7 +45,7 @@ class backup_jclic_activity_structure_step extends backup_activity_structure_ste
         $sessions = new backup_nested_element('sessions');
  
         $session = new backup_nested_element('session', array('id'), array(
-            'session_id', 'user_id', 'session_datetime', 'projectname',
+            'session_id', 'user_id', 'session_datetime', 'project_name',
             'session_key', 'session_code', 'session_context'));
  
         $activities = new backup_nested_element('sessionactivities');

@@ -152,9 +152,9 @@ defined('MOODLE_INTERNAL') || die();
             echo '<br><A href="#" onclick="window.open(\'action/student_results.php?id='.$context->instanceid.'\',\'JClic\',\'navigation=0,toolbar=0,resizable=1,scrollbars=1,width=700,height=400\');" >'.get_string('show_my_results', 'jclic').'</A>';
         }
         
-        if (!$isopen){
+        if (!$ispreview && !$isopen){
             echo $OUTPUT->box(get_string('notopenyet', 'jclic', userdate($jclic->timeavailable)), 'generalbox boxaligncenter jclicdates');
-        } else if ( $isclosed ) {
+        } else if (!$ispreview && $isclosed ) {
             echo $OUTPUT->box(get_string('expired', 'jclic', userdate($jclic->timedue)), 'generalbox boxaligncenter jclicdates'); 
         } else {
             if ($jclic->maxattempts<0 || $attempts < $jclic->maxattempts){
@@ -365,6 +365,7 @@ defined('MOODLE_INTERNAL') || die();
         global $CFG, $DB;
         
         $sessions=array();
+        jclic_normalize_date();
         $sql = "SELECT js.*
                 FROM {jclic} j, {jclic_sessions} js 
                 WHERE j.id=js.jclicid AND js.jclicid=? AND js.user_id=?
@@ -478,8 +479,9 @@ defined('MOODLE_INTERNAL') || die();
     * @return object	session object with score, totaltime, activities done and solved and attempts information
     */
     function jclic_get_sessions_summary($jclicid, $userid) {
-            global $CFG, $DB;
+        global $CFG, $DB;
 
+        jclic_normalize_date();
         $sessions_sumari = array('attempts'=>'','score'=>'','totaltime'=>'','starttime'=>'','done'=>'','solved'=>'');
         
         if ($rs = $DB->get_record_sql("SELECT COUNT(*) AS attempts, AVG(t.qualification) AS qualification, SUM(t.totaltime) AS totaltime, MAX(t.starttime) AS starttime
@@ -721,3 +723,13 @@ defined('MOODLE_INTERNAL') || die();
         }        
     }
  
+    /**
+     * Workaround to fix an Oracle's bug when inserting a row with date
+     */
+    function jclic_normalize_date () {
+        global $CFG, $DB;
+        if ($CFG->dbtype == 'oci'){
+            $sql = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
+            $DB->execute($sql);                        
+        }        
+    } 

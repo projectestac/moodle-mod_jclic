@@ -75,12 +75,11 @@ jclic_view_header($jclic, $cm, $course);
 jclic_view_intro($jclic, $cm);
 
 $action = optional_param('action', '', PARAM_TEXT);
-if (has_capability('mod/jclic:grade', $context, $USER->id, false)){
-    jclic_view_dates($jclic, $cm);
-    
+if (has_capability('mod/jclic:grade', $context, $USER->id, false)){    
     if ($action == 'preview'){
         jclic_view_applet($jclic, $context, true);
     } else{
+        jclic_view_dates($jclic, $cm);
         jclic_print_results_table($jclic, $context, $cm, $course, $action);
     }
     

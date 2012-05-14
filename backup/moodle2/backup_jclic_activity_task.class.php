@@ -24,8 +24,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+require_once($CFG->dirroot . '/mod/jclic/locallib.php'); // Because it exists (must)
 require_once($CFG->dirroot . '/mod/jclic/backup/moodle2/backup_jclic_stepslib.php'); // Because it exists (must)
-require_once($CFG->dirroot . '/mod/jclic/backup/moodle2/backup_jclic_settingslib.php'); // Because it exists (optional)
  
 /**
  * jclic backup task that provides all the settings and steps to perform one
@@ -44,6 +44,7 @@ class backup_jclic_activity_task extends backup_activity_task {
      * Define (add) particular steps this activity can have
      */
     protected function define_my_steps() {
+        jclic_normalize_date();
         $this->add_step(new backup_jclic_activity_structure_step('jclic_structure', 'jclic.xml'));        
     }
  

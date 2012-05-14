@@ -188,7 +188,7 @@ class mod_jclic_mod_form extends moodleform_mod {
             }
         }
         unset($default_values['url']);
-
+        
         $this->data_preprocessing($default_values);
         parent::set_data($default_values);
     }

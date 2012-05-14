@@ -43,6 +43,7 @@ if($GLOBALS["HTTP_RAW_POST_DATA"]){
 
 require_once("../../../config.php");
 require_once("../lib.php");
+require_once("../locallib.php");
 
 $dbman = $DB->get_manager(); // loads ddl manager and xmldb classes
 
@@ -124,13 +125,8 @@ switch($beans[0]['ID']){
 //                            VALUES (:jclicid,:user_id,:session_datetime,:session_id,:project_name)';
 //                    $sql = 'INSERT INTO {jclic_sessions} (jclicid, user_id, session_datetime, session_id, project_name) 
 //                            VALUES ('.$jclic_session->jclicid.','.$jclic_session->user_id.',\'2008-11-03 11:49:30\',\''.$jclic_session->session_id.'\',\''.$jclic_session->project_name.'\')';
-                    
-                    // Workaround to fix an Oracle's bug when inserting a row with date
-                    if ($CFG->dbtype == 'oci'){
-                        $sql = "ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD HH24:MI:SS'";
-                        $DB->execute($sql);                        
-                    }
-                    
+
+                    jclic_normalize_date();                   
                     $sessionid = $DB->insert_record("jclic_sessions", $jclic_session);
                     $jclic_session->id = $sessionid;
                     $jclic_session->session_id = $sessionid;

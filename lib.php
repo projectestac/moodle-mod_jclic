@@ -112,6 +112,11 @@ function jclic_add_instance(stdClass $jclic, mod_jclic_mod_form $mform = null) {
     } else{
         $jclic->url = $jclic->jclicurl;
     }
+    
+    if ($jclic->grade >=0 ) {
+        $jclic->maxgrade = $jclic->grade;
+    }
+    
 
     $jclic->id = $DB->insert_record('jclic', $jclic);
     // we need to use context now, so we need to make sure all needed info is already in db
@@ -165,6 +170,9 @@ function jclic_update_instance(stdClass $jclic, mod_jclic_mod_form $mform = null
     } else{
         $jclic->url = $jclic->jclicurl;
     }
+    if ($jclic->grade >=0 ) {
+        $jclic->maxgrade = $jclic->grade;
+    }    
     
     $result = $DB->update_record('jclic', $jclic);
     if ($result && $mform->get_data()->filetype === JCLIC_FILE_TYPE_LOCAL) {
