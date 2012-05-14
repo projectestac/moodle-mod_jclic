@@ -116,4 +116,4 @@ $string['return_results']='Return to results';
 $string['show_my_results']='Show my results';
 $string['solveddone'] = 'Activities solved / done';
 $string['urledit'] = 'JClic activity file';
-$string['urledit_help'] = 'The jclic.zip file where you will find the JClic activity package.';
+$string['urledit_help'] = 'The "jclic.zip" file where you will find the JClic activity package.';
