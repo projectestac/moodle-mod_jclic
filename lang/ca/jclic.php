@@ -87,8 +87,8 @@ $string['filetype'] = 'Tipus';
 $string['filetype_help'] = 'Aquest paràmetre determina com s\'insereix l\'activitat JClic en el curs. Tenim 2 opcions:
 
 * Fitxer JClic pujat - Permet escollir un fitxer ".jclic.zip" vàlid mitjançant el selector d\'arxius.
-* URL externa - Permet especificar el URL d\'un paquet JClic. Nota: El URL ha de començar amb http(s) o www i contenir un fitxer "jclic.zip" vàlid.';
-$string['filetypeexternal'] = 'URL externa';
+* URL extern - Permet especificar el URL d\'un paquet JClic. Nota: El URL ha de començar amb http(s) o www i contenir un fitxer "jclic.zip" vàlid.';
+$string['filetypeexternal'] = 'URL extern';
 $string['filetypelocal'] = 'Fitxer JClic pujat';
 $string['invalidjclicfile'] = 'S\'ha especificat un fitxer JClic no vàlid. El fitxer ha de tenir l\'extensió ".jclic.zip".';
 $string['invalidurl'] = 'S\'ha especificat un URL no vàlid. El URL ha de començar amb http(s) i ha d\'enllaçar a un fitxer ".jclic.zip" vàlid.';
