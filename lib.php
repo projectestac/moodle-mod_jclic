@@ -609,6 +609,50 @@ function jclic_get_file_areas($course, $cm, $context) {
 }
 
 /**
+ * File browsing support for jclic module content area.
+ * @param object $browser
+ * @param object $areas
+ * @param object $course
+ * @param object $cm
+ * @param object $context
+ * @param string $filearea
+ * @param int $itemid
+ * @param string $filepath
+ * @param string $filename
+ * @return object file_info instance or null if not found
+ */
+function jclic_get_file_info($browser, $areas, $course, $cm, $context, $filearea, $itemid, $filepath, $filename) {
+    global $CFG;
+
+    if (!has_capability('moodle/course:managefiles', $context)) {
+        // students can not peak here!
+        return null;
+    }
+
+    $fs = get_file_storage();
+
+    if ($filearea === 'content') {
+        $filepath = is_null($filepath) ? '/' : $filepath;
+        $filename = is_null($filename) ? '.' : $filename;
+
+        $urlbase = $CFG->wwwroot.'/pluginfile.php';
+        if (!$storedfile = $fs->get_file($context->id, 'mod_jclic', 'content', 0, $filepath, $filename)) {
+            if ($filepath === '/' and $filename === '.') {
+                $storedfile = new virtual_root_file($context->id, 'mod_jclic', 'content', 0);
+            } else {
+                // not found
+                return null;
+            }
+        }
+        return new file_info_stored($browser, $context, $storedfile, $urlbase, $areas[$filearea], false, true, false, false);
+    }
+    // note: jclic_intro handled in file_browser automatically
+
+    return null;
+}
+
+
+/**
  * Serves the files from the jclic file areas
  *
  * @param stdClass $course

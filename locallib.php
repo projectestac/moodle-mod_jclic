@@ -30,6 +30,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once("$CFG->libdir/filelib.php");
+
     /**
     * Get an array with the languages
     *
@@ -338,8 +340,7 @@ defined('MOODLE_INTERNAL') || die();
         }
         return $filename;
     }
-    
-    
+        
     function jclic_is_valid_external_url($url){
         return preg_match('/(http:\/\/|https:\/\/|www).*\/*.jclic.zip(\?[a-z+&\$_.-][a-z0-9;:@&%=+\/\$_.-]*)?$/i', $url);
     }
@@ -417,8 +418,8 @@ defined('MOODLE_INTERNAL') || die();
         if($rs = $DB->get_record_sql("SELECT AVG(ja.qualification) as qualification, SUM(ja.total_time) as totaltime
                                  FROM {jclic_activities} ja 
                                  WHERE ja.session_id='$session->session_id'")){
-                $activity->score=round($rs->qualification,0);
-                $activity->totaltime=round($rs->totaltime/60000,0)."' ".round(fmod($rs->totaltime,60000)/1000,0)."''";
+                $activity->score = round($rs->qualification,0);                
+                $activity->totaltime = jclic_format_time($rs->totaltime);
         }
         if ($rs = $DB->get_record_sql("SELECT COUNT(*) as done
                             FROM (SELECT DISTINCT ja.activity_name 
@@ -472,6 +473,15 @@ defined('MOODLE_INTERNAL') || die();
         }
         return $table_html;
     }
+    
+    /**
+     * Convert specified time (in milliseconds) to XX' YY'' format
+     * 
+     * @param type $time time (in milliseconds) to format
+     */
+    function jclic_format_time($time){
+        return floor($time/60000)."' ".round(fmod($time,60000)/1000,0)."''";
+    }
 
     /**
     * Get user activity summary
@@ -491,7 +501,7 @@ defined('MOODLE_INTERNAL') || die();
                                   GROUP BY js.session_id) t")){
                 $sessions_summary->attempts=$rs->attempts;
                 $sessions_summary->score=round($rs->qualification,0);
-                $sessions_summary->totaltime=round($rs->totaltime/60000,0)."' ".round(fmod($rs->totaltime,60000)/1000,0)."''";
+                $sessions_summary->totaltime= jclic_format_time($rs->totaltime);
                 $sessions_summary->starttime=$rs->starttime;
         }
 
