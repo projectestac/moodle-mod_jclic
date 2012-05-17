@@ -97,10 +97,10 @@ class mod_jclic_mod_form extends moodleform_mod {
         $mform->addElement('select', 'skin', get_string('skin', 'jclic'), $options);
 
         $mform->addElement('text', 'width', get_string('width', 'jclic'), array('size'=>'5'));
-        $mform->setDefault('width', '600');
+        $mform->setDefault('width', '800');
         
         $mform->addElement('text', 'height', get_string('height', 'jclic'), array('size'=>'5'));
-        $mform->setDefault('height', '400');
+        $mform->setDefault('height', '600');
         
         //-------------------------------------------------------------------------------
         $mform->addElement('header', 'header_score', get_string('header_score', 'jclic'));
