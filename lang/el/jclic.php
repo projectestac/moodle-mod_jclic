@@ -65,7 +65,7 @@ $string['solved']='Σωστό';
 $string['time']='Χρόνος';
 
 /* Revision 20071002 */
-$string['header_jclic']='JClic Ρυθμίσεις';
+$string['header_jclic']='Ρυθμίσεις JClic';
 $string['header_score']='Ρυθμίσεις Αξιολόγησης';
 
 /* Revision 20091023 */
@@ -77,43 +77,40 @@ $string['exiturl']='Έξοδος από το URL';
 
 
 /* Revision Moodle 2.X */
-$string['availabledate'] = 'Available from';
-$string['closebeforeopen'] = 'Could not update the jclic. You have specified a due date before the available date.';
-$string['duedate'] = 'Due date';
-$string['exiturl_help'] = 'This is the URL that appears when students finish the last JClic activity.
+$string['availabledate'] = 'Διαθέσιμο από';
+$string['closebeforeopen'] = 'Αδυναμία ενημέρωσης του JClic. Έχετε ορίσει ημερομηνία λήξης προγενέστερη της ημερομηνίας διαθεσιμότητας.';
+$string['duedate'] = 'Ημερομηνία λήξης';
+$string['exiturl_help'] = 'Αυτό είναι το URL που εμφανίζεται όταν οι μαθητές ολοκληρώνουν την τελευταία δραστηριότητα του JClic.
     
 To make work this redirection it\'s necessary to associate to the last activity in the Sequences tab the action "Exit JClic" in the Forward arrow section.';
-$string['expired'] = 'Sorry, this activity closed on {$a} and is no longer available';
-$string['filetype'] = 'Type';
-$string['filetype_help'] = 'This setting determines how the JClic activity is included in the course. There are up to 2 options:
+$string['expired'] = 'Συγνώμη, αλλά αυτή η δραστηριότητα έκλεισε στις {$a} και δεν είναι πλέον διαθέσιμη';
+$string['filetype'] = 'Είδος';
+$string['filetype_help'] = 'Αυτή η ρύθμιση καθορίζει τον τρόπο συμπερίληψης αυτής της δραστηριότητας του JClic στο μάθημα. Υπάρχουν δύο επιλογές:
 
 * Uploaded JClic - Enables a valid ".jclic.zip" package to be chosen by the file picker. 
 * External URL - Enables a URL to be specified. Note: The URL must start with http(s) or www and contain a valid "jclic.zip" file.';
-$string['filetypeexternal'] = 'External URL';
-$string['filetypelocal'] = 'Uploaded JClic';
-$string['invalidjclicfile'] = 'Invalid JClic specified. It must have the ".jclic.zip" extension.';
-$string['invalidurl'] = 'Invalid URL specified. It must start with http(s) and has to be a valid ".jclic.zip" file.';
+$string['filetypeexternal'] = 'Εξωτερικό URL';
+$string['filetypelocal'] = 'Φορτωμένο JClic';
+$string['invalidjclicfile'] = 'Προσδιορίστηκε ένα μη έγκυρο αρχείο JClic. Θα πρέπει να έχει κατάληξη ".jclic.zip".';
+$string['invalidurl'] = 'Προσδιορίστηκε ένα μη έγκυρο URL. Θα πρέπει να αρχίζει με http(s) και να παραπέμπει σε ένα έγκυρο αρχείο ".jclic.zip".';
 $string['jclic'] = 'JClic';
-$string['jclicjarbase']='Jar base';
-$string['jclicjarbase_help']='Web address where to locate all the JClic jar files';
+$string['jclicjarbase']='Με βάση Jar';
+$string['jclicjarbase_help']='Διεύθυνση Ιστού όπου βρίσκονται όλα τα αρχεία jar του JClic';
 $string['jclicurl'] = 'URL';
-$string['jclicurl_help'] = 'This setting enables a URL for the JClic package to be specified, rather than choosing a file via the file picker.';
-$string['jclicfile'] = 'JClic file';
-$string['jclicfile_help'] = 'The .jclic.zip file containing the JClic files.';
-$string['lap']='Lap';
-$string['lap_help']='Χρόνος συναλλαγών μεταξύ client-server transactions (σε δευτερόλεπτα)';
-$string['modulename_help'] = '<a href="http://clic.xtec.cat" target="_blank">JClic</a> is a project of the Catalan Ministry of Education. 
-    It consists of a set of open source software applications that allow the creation of several types of multimedia educational activities: puzzles, association games, text activities, crosswords, wordsearch games and more. 
-    Besides, the <a href="http://clic.xtec.cat/db/listact_ca.jsp" target="_blank">ClicZone</a> offers a repository where more than a thousand activities are displayed. 
-    It has been created by teachers and other professionals who want to share their work with others.
+$string['jclicurl_help'] = 'Αυτή η ρύθμιση ενεργοποιεί ένα URL για τον προσδιορισμό ενός αρχείου JClic, καλύτερα απ\' ότι με επιλογή του αρχείου μέσω ενός επιλογέα.';
+$string['jclicfile'] = 'Αρχείο JClic';
+$string['jclicfile_help'] = 'Το αρχείο ".jclic.zip" που περιέχει τα αρχεία του JClic.';
+$string['lap']='Απαιτούμενος χρόνος';
+$string['lap_help']='Χρόνος συναλλαγών μεταξύ πελατών και διακομιστή (σε δευτερόλεπτα)';
+$string['modulename_help'] = 'Το <a href="http://clic.xtec.cat" target="_blank">JClic</a>  είναι ένα έργο του Υπουργείου Παιδείας της Καταλωνίας. Αποτελείται από εφαρμογές ανοιχτού λογισμού που επιτρέπουν τη δημιουργία αρκετών τύπων πολυμεσικών εκπαιδευτικών δραστηριοτήτων: παζλ, παιχνίδια αντιστοίχισης, δραστηριότητες κειμένου, σταυρόλεξα, αναζήτηση λέξεων και άλλα. Επιπροσθέτως, το <a href="http://clic.xtec.cat/db/listact_ca.jsp" target="_blank">ClicZone</a>  προσφέρει ένα αποθετήριο όπου θα βρείτε περισσότερες από χίλιες έτοιμες δραστηριότητες, οι οποίες δημιουργήθηκαν από εκπαιδευτικούς και άλλους επαγγελματίες της εκπαίδευσης, οι οποίοι επιθυμούν τον διαμοιρασμό της δουλειάς τους.
 
 This module allows teachers to add JClick activities to any course and to track pupils\' results (time spent on each of the activities, number of tries, score...).';
-$string['notopenyet'] = 'Sorry, this activity is not available until {$a}';
-$string['pluginadministration'] = 'JClic administration';
+$string['notopenyet'] = 'Συγνώμη, αλλά αυτή η δραστηριότητα δεν είναι διαθέσιμη μέχρι τις {$a}';
+$string['pluginadministration'] = 'Διαχείριση JClic';
 $string['pluginname'] = 'JClic';
 $string['preview_jclic']='Εμφάνιση δραστηριότητας του JClic'; // Preview JClic activity
-$string['return_results']='Return to results';
+$string['return_results']='Επιστροφή στα αποτελέσματα';
 $string['show_my_results']='Προβολή αποτελεσμάτων';  // Show my results
-$string['solveddone'] = 'Activities solved / done';
-$string['urledit'] = 'JClic activity file';
-$string['urledit_help'] = 'The "jclic.zip" file where you will find the JClic activity package.';
+$string['solveddone'] = 'Ολοκληρωμένες δραστηριότητες';
+$string['urledit'] = 'Αρχείο δραστηριότητας JClic';
+$string['urledit_help'] = 'Το αρχείο "jclic.zip" όπου θα βρείτε το πακέτο δραστηριοτήτων του JClic.';
