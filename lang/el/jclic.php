@@ -17,14 +17,14 @@
 
 
 /**
- * English strings for jclic
+ * Greek strings for jclic
  *
  * You can have a rather longer description of the file as well,
  * if you like, and it can span multiple lines.
  *
  * @package    mod
  * @copyright  2011 Departament d'Ensenyament de la Generalitat de Catalunya
- * @author     Yannis Kaskamanidis (ttnfy17@yahoo.gr)
+ * @author     Yannis Kaskamanidis (kiolalis@gmail.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
