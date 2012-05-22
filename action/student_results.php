@@ -18,9 +18,6 @@
 /**
  * Prints results from a specific session
  *
- * You can have a rather longer description of the file as well,
- * if you like, and it can span multiple lines.
- *
  * @package    mod
  * @subpackage jclic
  * @copyright  2011 Departament d'Ensenyament de la Generalitat de Catalunya

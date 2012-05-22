@@ -65,7 +65,7 @@ Translations:
      Abel Camacho - didaktika@santurtzieus.com
      
    Greek:
-     Yannis Kaskamanidis - ttnfy17@yahoo.gr
+     Yannis Kaskamanidis - kiolalis@gmail.com
      
    Galician:
      Xosé Luis Barreiro Cebey - xoseluis@edu.xunta.es
@@ -75,13 +75,14 @@ Translations:
    
 
 Special Thanks:
-   Eva Gea
-   Birgit Ferran
    Sandra Fernandez 
+   Birgit Ferran
    Silvia Garcia Yague
    Albert Gasset Romo
-   Jaume Rocarias
+   Eva Gea
+   Toni Ginard
    David Monllao
+   Jaume Rocarias
 
 
 

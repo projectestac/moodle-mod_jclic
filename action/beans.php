@@ -16,10 +16,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Internal library of functions for module jclic
- *
- * All the jclic specific functions, needed to implement the module
- * logic, should go here. Never include this file from your lib.php!
+ * File called from JClic player to save students' results
  *
  * @package    mod
  * @subpackage jclic
