@@ -118,4 +118,6 @@ $string['solveddone'] = 'Activitats encertades / fetes';
 $string['urledit'] = 'Fitxer JClic';
 $string['urledit_help'] = 'El fitxer ".jclic.zip" que conté l\'activitat JClic.';
 
-
+$string['jclic:view'] = 'Visualitza JClic';
+$string['jclic:submit'] = 'Envia JClic';
+$string['jclic:grade'] = 'Avalua JClic';

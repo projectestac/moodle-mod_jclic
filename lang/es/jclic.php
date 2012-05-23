@@ -121,3 +121,7 @@ $string['show_my_results']='Mostrar mis resultados';
 $string['solveddone'] = 'Actividades acertadas / realizadas';
 $string['urledit'] = 'Fichero JClic';
 $string['urledit_help'] = 'El fichero "jclic.zip" que contiene la actividad JClic.';
+
+$string['jclic:view'] = 'Ver JClic';
+$string['jclic:submit'] = 'Enviar JClic';
+$string['jclic:grade'] = 'Evaluar JClic';
