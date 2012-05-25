@@ -24,7 +24,7 @@
  *
  * @package    mod
  * @copyright  2011 Departament d'Ensenyament de la Generalitat de Catalunya
- * @author     Abel Camacho (didaktika@santurtzieus.com)
+ * @author     Abel Camacho (didaktika@santurtzieus.com) & Pedro Lonbide (zuzen@santurtzieus.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -77,44 +77,40 @@ $string['exiturl']='Irteera-esteka';
 
 
 /* Revision Moodle 2.X */
-$string['availabledate'] = 'Disponible desde';
-$string['closebeforeopen'] = 'No se pudo actualizar el JClic: la fecha de cierre es anterior a la de apertura.';
-$string['duedate'] = 'Fecha de entrega';
-$string['exiturl_help'] = 'Se trata del URL que se abrir&aacute; cuando el alumnado finalice la &uacute;ltima actividad JClic.
-    
-Para que esta redirecci&oacute;n funcione es necesario que, en la pesta&ntilde;a "Secuencias", la &uacute;ltima actividad del projecto JClic, tenga asociada, en la secci&oacute;n "Flecha adelante", la acci&oacute;n "Salir de JClic".';
-$string['expired'] = 'Lo sentimos, esta actividad se cerró en {$a} y ya no está disponible';
-$string['filetype'] = 'Tipo';
-$string['filetype_help'] = 'Este parámetro determina cómo se incluye el paquete JClic en el curso. Hay 2 opciones:
+$string['availabledate'] = 'Noiztik eskuragarri:';
+$string['closebeforeopen'] = 'Ezin izan da JClic eguneratu: ixteko data zabaltzeko data baina lehenagokoa da.';
+$string['duedate'] = 'Entregatze-data';
+$string['exiturl_help'] = 'Hau da ikasleak JClic jarduera amaitzen duenean zabalduko den URLa.
 
-* Fichero JClic subido - Posibilita escoger un fichero ".jclic.zip" válido mediante el selector de archivos.
-* URL externa - Posibilita especificar el URL de un paquete JClic. NOTA: El URL debe empezar con https(s) o www y contener un fichero ".jclic.zip" válido';
-$string['filetypeexternal'] = 'URL externa';
-$string['filetypelocal'] = 'Fichero JClic subido';
-$string['invalidjclicfile'] = 'Se ha especificado un fichero JClic no válido. El fichero debe tener la extensión ".jclic.zip".';
-$string['invalidurl'] = 'Se ha especificado un URL no válido. El URL debe empezar con http(s) y enlazar a un fichero ".jclic.zip" válido.';
+Berbidalketa honek funtziona dezan, "Sekuentziak" fitxako JClic proiektuko azken jarduerak, "Aurrerako gezia" atalean, lotuta izan behar du "JClic-etik irten" ekintza.';
+$string['expired'] = 'Barkatu, jarduera hau {$a} datan itxi zen eta dagoeneko ez dago eskura';
+$string['filetype'] = 'Mota';
+$string['filetype_help'] = 'Ezarpen honek zehazten du nola txertatuko den ikastaroan JClic paketea. Bi aukera dago:
+
+* Igotako JClic fitxategia - Fitxategi-hautatzailearen bitartez ".jclic.zip" fitxategi baliagarria aukera daiteke
+* Kanpoko URLa - JClic pakete baten URLa zehazteko aukera ematen du. OHARRA: URL-ak https(s) edo www hasiera izan behar du eta ".jclic.zip" fitxategi baliagarria izan behar du barnean';
+$string['filetypeexternal'] = 'Kanpoko URLa';
+$string['filetypelocal'] = 'Igotako JClic fitxategia';
+$string['invalidjclicfile'] = 'Balio ez duen JClic fitxategia ezarri da. Fitxategiak ".jclic.zip" luzapena izan behar du.';
+$string['invalidurl'] = 'Balio ez duen URLa ezarri da. URLak http(s) hasiera izan behar du eta ".jclic.zip" fitxategi baliagarri batera estekatu behar du.';
 $string['jclic'] = 'JClic';
-$string['jclicjarbase']='URL base de los ficheros JAR';
-$string['jclicjarbase_help']='Dirección web donde localizar todos los ficheros jar de JClic.';
-$string['jclicurl'] = 'URL';
-$string['jclicurl_help'] = 'Este parámetro habilita un URL para especificar el paquete JClic en lugar de seleccionarlo a través del selector de archivos.';
-$string['jclicfile'] = 'Fichero JClic';
-$string['jclicfile_help'] = 'El fichero ".jclic.zip" que contiene el paquete JClic.';
-$string['lap']='Tiempo entre vueltas';
+$string['jclicjarbase']='JAR fitxategien oinarrizko URLa';
+$string['jclicjarbase_help']='JClic-en JAR fitxategi guztiak izateko web-helbidea.';
+$string['jclicurl'] = 'URLa';
+$string['jclicurl_help'] = 'Ezarpen honek URL bat sortzen du Jclic paketea aukeratzeko, fitxategi-hautatzailearen bidez aukeratu beharrik gabe.';
+$string['jclicfile'] = 'JClic fitxategia';
+$string['jclicfile_help'] = 'JClic paketea duen ".jclic.zip" fitxategia.';
+$string['lap']='Itzulien arteko denbora-tartea';
 $string['lap_help'] = 'Bezeroaren eta zerbitzariaren arteko transakzioetarako uzten den denbora (segundutan)'; 
-$string['modulename_help'] = '<a href="http://clic.xtec.cat" target="_blank">JClic</a> es un proyecto del Departament de Ensenyament de la 
-    Generalitat de Cataluña que está formado por un conjunto de aplicaciones de software libre que permiten crear diversos tipos de actividades
-    educativas multimedia: puzzles, asociaciones, ejercicios de texto, crucigramas, sopas de letras y otros. Además, la 
-    <a href="http://clic.xtec.cat/db/listact_ca.jsp" target="_blank">zonaClic</a> dispone de una biblioteca de actividades que cuenta con unos 1000 
-    proyectos que han creado profesores y personas de otros colectivos que han querido compartir solidariamente su trabajo. 
-    
-Este módulo permite al profesorado añadir a un curso cualquier actividad de tipo JClic y recopilar los resultados obtenidos (tiempo utilizado para cada actividad, intentos, aciertos, etc.) para cada alumno/a.';
-$string['notopenyet'] = 'Esta actividad no estará disponible hasta {$a}';
-$string['pluginadministration'] = 'Administración de JClic';
+$string['modulename_help'] = '<a href="http://clic.xtec.cat" target="_blank">JClic</a> Kataluniako Generalitateko Hezkuntza Sailaren proiektua da. Software askeko hainbat aplikatibok osatzen dute eta hainbat hezkuntza-jarduera multimedia sortzeko aukera ematen dute: puzzleak, loturak, testu-ariketak, gurutzegramak, letra-zopak eta bestelakoak. Gainera, <a href="http://clic.xtec.cat/db/listact_ca.jsp" target="_blank">zonaClic-ak</a> jarduera-biltegi bat du eta bertan bere lana elkarbanatu nahi izan duten irakasle eta beste talde batzuetako hainbat lagunek sortutako 1000 proiektutik gora daude
+
+Modulu honen bitartez irakasleek JClic motako edozein jarduera gehi dezakete ikastaro batean eta baita ikasle bakoitzak lortutako emaitzak eskuratu ere (jardueran emandako denbora, saiakerak, asmatutakoak, e.a.).';
+$string['notopenyet'] = 'Jarduera hau  ez da {$a} datara arte  eskuragarri egongo';
+$string['pluginadministration'] = 'JClic-en kudeaketa';
 $string['pluginname'] = 'JClic';
-$string['preview_jclic']='JClic jarduera erakutsi';  // Previsualizar la actividad JClic
-$string['return_results']='Volver a los resultados';
-$string['show_my_results'] = 'Emaitzak erakutsi'; // Mostrar mis resultados
-$string['solveddone'] = 'Actividades acertadas / realizadas';
-$string['urledit'] = 'Fichero JClic';
-$string['urledit_help'] = 'El fichero "jclic.zip" que contiene la actividad JClic.';
+$string['preview_jclic']='JClic jarduera aurreikusi';  // Aurreikusi JClic jarduera
+$string['return_results']='Itzuli emaitzetara';
+$string['show_my_results'] = 'Emaitzak erakutsi'; // Erakutsi nire emaitzak
+$string['solveddone'] = 'Asmatutako / burututako jarduerak';
+$string['urledit'] = 'JClic fitxategia';
+$string['urledit_help'] = 'JClic jarduera duen "jclic.zip" fitxategia.';
