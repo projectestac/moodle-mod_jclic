@@ -38,7 +38,7 @@ to http://www.gnu.org/copyleft/gpl.html or write to
 
 -----------------------------------------------------------------------------
 REQUIREMENTS
-Compatible with Moodle 1.9.x releases
+Compatible with Moodle 2.X releases
 
 -----------------------------------------------------------------------------
 INSTALL
@@ -62,7 +62,8 @@ JClic community support:
 
 Translations:
   Basque:
-     Abel Camacho - didaktika@santurtzieus.com
+     Abel Camacho  - didaktika@santurtzieus.com
+     Pedro Lonbide - zuzen@santurtzieus.com
      
    Greek:
      Yannis Kaskamanidis - kiolalis@gmail.com
