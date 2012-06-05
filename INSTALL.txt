@@ -1,0 +1,21 @@
+JCLIC MODULE FOR MOODLE
+Departament d'Educació - Generalitat de Catalunya
+
+--------------------------------------------------------------------------------
+To Install:
+
+1. Download the JClic[1] module for Moodle from LaFarga.cat[2] and unzip it.
+2. Load the mod directory into your "mod" Moodle directory. To verify that these files have been transferred to the right place, you should check that the directory 'mod' contains a 'jclic' directory.
+3. Visit your admin page to create all of the necessary data tables. To do this you'll need to access to your Moodle with an admin user and click on the Notifications link in the Administration block.
+
+--------------------------------------------------------------------------------
+To Upgrade:
+
+1. Download the JClic[1] module for Moodle from LaFarga.cat[2] and unzip it.
+2. Copy all of the mod/jclic files into your 'mod/jclic' directory.
+3. Visit your admin page to update the database.
+   
+--------------------------------------------------------------------------------
+
+[1] JClic: http://clic.xtec.cat/
+[2] LaFarga.cat: https://projectes.lafarga.cat/projects/q-virtuals/
