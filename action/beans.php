@@ -1,30 +1,4 @@
-<?php 
-
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
-/**
- * File called from JClic player to save students' results
- *
- * @package    mod
- * @subpackage jclic
- * @copyright  2011 Departament d'Ensenyament de la Generalitat de Catalunya
- * @author     Sara Arjona Téllez <sarjona@xtec.cat>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
+<?PHP // $Id: beans.php,v 1.6 2011-05-25 12:13:03 sarjona Exp $
 header('Content-type: text/xml');
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -40,9 +14,6 @@ if($GLOBALS["HTTP_RAW_POST_DATA"]){
 
 require_once("../../../config.php");
 require_once("../lib.php");
-require_once("../locallib.php");
-
-$dbman = $DB->get_manager(); // loads ddl manager and xmldb classes
 
 $elements=array();
 $oldElements=array();
@@ -99,57 +70,35 @@ switch($beans[0]['ID']){
 	case "get_properties":
 		echo '<?xml version="1.0" encoding="UTF-8"?'.'>';
 		echo '<bean id="get_properties">';
-		$settings = $DB->get_records('jclic_settings');
+		$settings = get_records("jclic_settings");
 		foreach($settings as $setting){
 			echo ' <param name="'.$setting->setting_key.'" value="'.$setting->setting_value.'"/>';
 		}
 		echo '</bean>';
 	    break;
-	case "add session":  
-                $jclic_session = new stdClass();
-		$jclic_session->jclicid=$beans[0]['PARAMS']['key'];            
+	case "add session":
+		$jclic_session->jclicid=$beans[0]['PARAMS']['key'];
 		$jclic_session->user_id=$beans[0]['PARAMS']['user'];
-                $jclic_session->session_datetime = date('Y-m-d h:i:s', round($beans[0]['PARAMS']['time']/1000));
-                $jclic_session->session_id='X';  // @TODO: Review
-//		$jclic_session->session_id=$beans[0]['PARAMS']['user'].'_'.$beans[0]['PARAMS']['time'];
+		$jclic_session->session_datetime=round($beans[0]['PARAMS']['time']/1000);
+		$jclic_session->session_id=$beans[0]['PARAMS']['user'].'_'.$beans[0]['PARAMS']['time'];
 		$jclic_session->project_name=$beans[0]['PARAMS']['project'];
-                try{
-// ALTER TABLE m2jclic_sessions MODIFY (SESSION_DATETIME DATE null);                    
-//                    $params = array('jclicid'=>$jclic_session->jclicid, 'user_id'=>$jclic_session->user_id,
-//                            'session_datetime'=>$jclic_session->session_datetime,'session_id'=>$jclic_session->session_id,
-//                            'project_name'=>$jclic_session->project_name);
-//                    $sql = 'INSERT INTO {jclic_sessions} (jclicid, user_id, session_datetime, session_id, project_name) 
-//                            VALUES (:jclicid,:user_id,:session_datetime,:session_id,:project_name)';
-//                    $sql = 'INSERT INTO {jclic_sessions} (jclicid, user_id, session_datetime, session_id, project_name) 
-//                            VALUES ('.$jclic_session->jclicid.','.$jclic_session->user_id.',\'2008-11-03 11:49:30\',\''.$jclic_session->session_id.'\',\''.$jclic_session->project_name.'\')';
-
-                    jclic_normalize_date();                   
-                    $sessionid = $DB->insert_record("jclic_sessions", $jclic_session);
-                    $jclic_session->id = $sessionid;
-                    $jclic_session->session_id = $sessionid;
-                    $DB->update_record("jclic_sessions", $jclic_session);
-                }catch (Exception $e){
-                    echo 'Caught exception: ',  $e->getMessage(), "\n";
-                    print_r($e);
-                }
-
-                if (!$DB->get_record('jclic_users', array('user_id' => $beans[0]['PARAMS']['user'].'') )){
-                    if ($user = $DB->get_record('user', array('id' => $beans[0]['PARAMS']['user'].''))){
-                        $jclic_user->user_id = $beans[0]['PARAMS']['user'];
-                        $jclic_user->group_id = '1';
-                        $jclic_user->user_name = $user->firstname.' '.$user->lastname;
-                        $DB->insert_record("jclic_users", $jclic_user);                        
-                    }
-                    
-                }
-                
+		insert_record("jclic_sessions", $jclic_session);
+		
+		if (!get_record("jclic_users", "user_id", $beans[0]['PARAMS']['user'].'')){
+			if ($user = get_record("user", "id", $beans[0]['PARAMS']['user'].'')){
+				$jclic_user->user_id=$beans[0]['PARAMS']['user'];
+				$jclic_user->group_id='1';
+				$jclic_user->user_name=$user->firstname.' '.$user->lastname;
+				insert_record("jclic_users", $jclic_user);
+			}
+		}
+		
 		echo '<?xml version="1.0" encoding="UTF-8"?'.'>';
 		echo '<bean id="add session">';
 		echo ' <param name="session" value="'.$jclic_session->session_id.'"/>';
 		echo '</bean>';
 	    break;
 	case "multiple":
-                $jclic_activity = null;
 		foreach ($beans as $bean){
 			if ($bean['ID']=='add activity'){
 				$jclic_activity->session_id=$bean['PARAMS']['session'];
@@ -158,18 +107,14 @@ switch($beans[0]['ID']){
 				$jclic_activity->num_actions=$bean['ACTIVITY']['actions'];
 				$jclic_activity->activity_solved=$bean['ACTIVITY']['solved']=='true'?1:0;
 				$jclic_activity->score=$bean['ACTIVITY']['score'];
-				$jclic_activity->grade=$jclic_activity->score;
 				$jclic_activity->qualification=getPrecision($bean['ACTIVITY']['minActions'], $bean['ACTIVITY']['actions'], ''.$bean['ACTIVITY']['solved'], $bean['ACTIVITY']['score']);
-				$jclic_activity->total_time=$bean['ACTIVITY']['time'];                                
-				$DB->insert_record("jclic_activities", $jclic_activity);
+				//$jclic_activity->starttime=$bean['ACTIVITY']['start'];
+				$jclic_activity->total_time=$bean['ACTIVITY']['time'];
+				insert_record("jclic_activities", $jclic_activity);
+				
 			}			
 		}
-                if (isset($jclic_activity) && $jclic_session = $DB->get_record('jclic_sessions', array('session_id' => $jclic_activity->session_id))){
-                    $jclic = $DB->get_record('jclic', array('id' => $jclic_session->jclicid) );
-                    $cm = get_coursemodule_from_instance('jclic', $jclic->id, $jclic->course, false, MUST_EXIST);
-                    $jclic->cmidnumber = $cm->idnumber;
-                    jclic_update_grades($jclic, $jclic_session->user_id);
-                }
+		jclic_update_gradebook($jclic_activity);
 
 		echo '<?xml version="1.0" encoding="UTF-8"?'.'>';
 		echo '<bean id="add activity">';

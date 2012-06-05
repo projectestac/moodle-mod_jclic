@@ -1,396 +1,238 @@
-<?php
+<?PHP  // $Id: lib.php,v 1.19 2011-05-25 12:13:03 sarjona Exp $
 
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+/// Library of functions and constants for module jclic
 
-/**
- * Library of interface functions and constants for module jclic
- *
- * All the core Moodle functions, neeeded to allow the module to work
- * integrated in Moodle should be placed here.
- * All the jclic specific functions, needed to implement all the module
- * logic, should go to locallib.php. This will help to save some memory when
- * Moodle is performing actions across all modules.
- *
- * @package    mod
- * @subpackage jclic
- * @copyright  2011 Departament d'Ensenyament de la Generalitat de Catalunya
- * @author     Sara Arjona Téllez <sarjona@xtec.cat>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+require_once($CFG->libdir.'/pagelib.php');
 
-defined('MOODLE_INTERNAL') || die();
 
-define('JCLIC_DEFAULT_JARBASE', 'http://clic.xtec.cat/dist/jclic');
-define('JCLIC_DEFAULT_LAP', 5);
-
-if (!isset($CFG->jclic_jarbase)) {
-    set_config('jclic_jarbase', JCLIC_DEFAULT_JARBASE);
+if (!isset($CFG->jclic_jclicpluginjs)) {
+    set_config("jclic_jclicpluginjs", "http://clic.xtec.cat/dist/jclic/jclicplugin.js");
 }
 if (!isset($CFG->jclic_lap)) {
     set_config("jclic_lap", "5");
 }
 
-// JClic file types
-define('JCLIC_FILE_TYPE_LOCAL', 'local');
-define('JCLIC_FILE_TYPE_EXTERNAL', 'external');
+function jclic_add_instance($jclic) {
+/// Given an object containing all the necessary data, 
+/// (defined by the form in mod.html) this function 
+/// will create a new instance and return the id number 
+/// of the new instance.
+    $jclic->url=trim($jclic->url);
+    if ($jclic->skin=='') $jclic->skin="default";
 
-/** Include eventslib.php */
-require_once($CFG->libdir.'/eventslib.php');
-/** Include formslib.php */
-require_once($CFG->libdir.'/formslib.php');
-/** Include calendar/lib.php */
-require_once($CFG->dirroot.'/calendar/lib.php');
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Moodle core API                                                            //
-////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Returns the information on whether the module supports a feature
- * 
- * @todo: review features before publishing the module
- *
- * @see plugin_supports() in lib/moodlelib.php
- * @param string $feature FEATURE_xx constant for requested feature
- * @return mixed true if the feature is supported, null if unknown
- */
-function jclic_supports($feature) {
-    switch($feature) {
-        case FEATURE_GROUPS:                  return true;
-//        case FEATURE_GROUPINGS:               return true;
-//        case FEATURE_GROUPMEMBERSONLY:        return true;
-        case FEATURE_MOD_INTRO:               return true;
-        case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
-//        case FEATURE_COMPLETION_HAS_RULES:    return true;
-        case FEATURE_GRADE_HAS_GRADE:         return true;
-//        case FEATURE_GRADE_OUTCOMES:          return true;
-//        case FEATURE_RATE:                    return true;
-        case FEATURE_BACKUP_MOODLE2:          return true;
-        case FEATURE_SHOW_DESCRIPTION:        return true;
-//        case FEATURE_ADVANCED_GRADING:        return true;
-        default:                        return null;
-    }
+    return insert_record("jclic", $jclic);
 }
 
-/**
- * Saves a new instance of the jclic into the database
- *
- * Given an object containing all the necessary data,
- * (defined by the form in mod_form.php) this function
- * will create a new instance and return the id number
- * of the new instance.
- * 
- * @todo: create event (when timedue added)
- *
- * @param object $jclic An object from the form in mod_form.php
- * @param mod_jclic_mod_form $mform
- * @return int The id of the newly inserted jclic record
- */
-function jclic_add_instance(stdClass $jclic, mod_jclic_mod_form $mform = null) {
-    global $DB;
-        
-    $cmid = $jclic->coursemodule;
-    $jclic->timecreated = time();
-    if ($jclic->skin=='') $jclic->skin = "default";
 
-    if ($mform->get_data()->filetype === JCLIC_FILE_TYPE_LOCAL) {
-        $jclic->url = $mform->get_data()->jclicfile;
-    } else{
-        $jclic->url = $jclic->jclicurl;
-    }
-    
-    if ($jclic->grade >=0 ) {
-        $jclic->maxgrade = $jclic->grade;
-    }
-    
-
-    $jclic->id = $DB->insert_record('jclic', $jclic);
-    // we need to use context now, so we need to make sure all needed info is already in db
-    $DB->set_field('course_modules', 'instance', $jclic->id, array('id'=>$cmid));
-    
-    // Store the JClic and verify
-    if ($mform->get_data()->filetype === JCLIC_FILE_TYPE_LOCAL) {
-        $filename = jclic_set_mainfile($jclic);
-        $jclic->url = $filename;
-        $DB->update_record('jclic', $jclic);
-    }
-    
-    if ($jclic->timedue) {
-        $event = new stdClass();
-        $event->name        = $jclic->name;
-        $event->description = format_module_intro('jclic', $jclic, $jclic->coursemodule);
-        $event->courseid    = $jclic->course;
-        $event->groupid     = 0;
-        $event->userid      = 0;
-        $event->modulename  = 'jclic';
-        $event->instance    = $jclic->id;
-        $event->eventtype   = 'due';
-        $event->timestart   = $jclic->timedue;
-        $event->timeduration = 0;
-
-        calendar_event::create($event);
-    }
-    jclic_grade_item_update($jclic);
-    
-    return $jclic->id;    
-}
-
-/**
- * Updates an instance of the jclic in the database
- *
- * Given an object containing all the necessary data,
- * (defined by the form in mod_form.php) this function
- * will update an existing instance with new data.
- *
- * @param object $jclic An object from the form in mod_form.php
- * @param mod_jclic_mod_form $mform
- * @return boolean Success/Fail
- */
-function jclic_update_instance(stdClass $jclic, mod_jclic_mod_form $mform = null) {
-    global $DB;
-
-    $jclic->timemodified = time();
+function jclic_update_instance($jclic) {
+/// Given an object containing all the necessary data, 
+/// (defined by the form in mod.html) this function 
+/// will update an existing instance with new data.
     $jclic->id = $jclic->instance;
-    if ($mform->get_data()->filetype === JCLIC_FILE_TYPE_LOCAL) {
-        $jclic->url = $mform->get_data()->jclicfile;
-    } else{
-        $jclic->url = $jclic->jclicurl;
+    $jclic->url=trim($jclic->url);
+    if(update_record("jclic", $jclic)){
+   		return jclic_update_gradebook(null, $jclic);
     }
-    if ($jclic->grade >=0 ) {
-        $jclic->maxgrade = $jclic->grade;
-    }    
-    
-    $result = $DB->update_record('jclic', $jclic);
-    if ($result && $mform->get_data()->filetype === JCLIC_FILE_TYPE_LOCAL) {
-        $filename = jclic_set_mainfile($jclic);
-        $jclic->url = $filename;
-        $result = $DB->update_record('jclic', $jclic);
-    }
-    
-    if ($result && $jclic->timedue) {
-        $event = new stdClass();
-        if ($event->id = $DB->get_field('event', 'id', array('modulename'=>'jclic', 'instance'=>$jclic->id))) {
-            $event->name        = $jclic->name;
-            $event->description = format_module_intro('jclic', $jclic, $jclic->coursemodule);
-            $event->timestart   = $jclic->timedue;
-
-            $calendarevent = calendar_event::load($event->id);
-            $calendarevent->update($event);
-        } else {
-            $event = new stdClass();
-            $event->name        = $jclic->name;
-            $event->description = format_module_intro('jclic', $jclic, $jclic->coursemodule);
-            $event->courseid    = $jclic->course;
-            $event->groupid     = 0;
-            $event->userid      = 0;
-            $event->modulename  = 'jclic';
-            $event->instance    = $jclic->id;
-            $event->eventtype   = 'due';
-            $event->timestart   = $jclic->timedue;
-            $event->timeduration = 0;
-
-            calendar_event::create($event);
-        }
-    } else {
-        $DB->delete_records('event', array('modulename'=>'jclic', 'instance'=>$jclic->id));
-    }  
-    
-    if ($result){
-        // get existing grade item
-        $result = jclic_grade_item_update($jclic);
-    }
-    
-    return $result;
+	return false;
 }
 
-/**
- * Removes an instance of the jclic from the database
- *
- * Given an ID of an instance of this module,
- * this function will permanently delete the instance
- * and any data that depends on it.
- * 
- * @todo: delete event records (after adding this feature to the module)
- *
- * @param int $id Id of the module instance
- * @return boolean Success/Failure
- */
-function jclic_delete_instance($id) {
-    global $DB;
 
-    if (!$jclic = $DB->get_record('jclic', array('id'=>$id))) {
+function jclic_delete_instance($id) {
+/// Given an ID of an instance of this module, 
+/// this function will permanently delete the instance 
+/// and any data that depends on it.
+
+
+    if (! $jclic = get_record("jclic", "id", "$id")) {
         return false;
     }
-    
-    // Delete any dependent records
     $result = true;
-    $rs =  $DB->get_records('jclic_sessions', array('jclicid' => $id));
+    
+    # Delete any dependent records here #
+    $rs =  get_record("jclic_sessions", "jclicid", "$id");
     foreach($rs as $session){
-        if (!$DB->delete_records('jclic_activities', array('session_id' => $session->session_id))){
-            $result = false;
-            exit;
-        }
-    }
+      delete_records("jclic_activities", "session_id", "$rs->session_id");
+	  }
 
-    if ($result && !$DB->delete_records('jclic_sessions', array('jclicid' => $id))){
-        $result = false;
-    }
-
-    if ($result && !$DB->delete_records('jclic', array('id' => $id))) {
+    delete_records("jclic_sessions", "jclicid", "$id");
+    
+    if (! delete_records("jclic", "id", "$id")) {
         $result = false;
     }
     
-    if ($result && !$DB->delete_records('event', array('modulename'=>'jclic', 'instance'=>$jclic->id))) {
-        $result = false;
-    }
-
-    if ($result && !jclic_grade_item_delete($jclic)){
-        $result = false;
-    }
-
+    
     return $result;
 }
 
-/**
- * Returns a small object with summary information about what a
- * user has done with a given particular instance of this module
- * Used for user activity reports.
- * $return->time = the time they did it
- * $return->info = a short text description
- *
- * @param object $course
- * @param object $user
- * @param object $mod
- * @param object $jclic
- * @return stdClass|null
- */
-function jclic_user_outline($course, $user, $mod, $jclic) {    
-    global $CFG;
-    
-    require_once("$CFG->libdir/gradelib.php");
-    $result = null;
-    
-    $grades = grade_get_grades($course->id, 'mod', 'jclic', $jclic->id, $user->id);
-    if (!empty($grades->items[0]->grades)) {
-        $grade = reset($grades->items[0]->grades);
-        $result = new stdClass();
-        $result->info = get_string('grade') . ': ' . $grade->str_long_grade;
+function jclic_user_outline($course, $user, $mod, $jclic) {
+/// Return a small object with summary information about what a 
+/// user has done with a given particular instance of this module
+/// Used for user activity reports.
 
-        //if grade was last modified by the user themselves use date graded. Otherwise use date submitted
-        if ($grade->usermodified == $user->id || empty($grade->datesubmitted)) {
-            $result->time = $grade->dategraded;
-        } else {
-            $result->time = $grade->datesubmitted;
-        }
-    }
-    return $result;    
+	$jclic_summary = jclic_get_sessions_summary($jclic->id, $user->id);
+	$return->time = $jclic_summary->totaltime;
+	$maxgrade = 0;
+	if (property_exists($jclic, 'maxgrade')) $maxgrade = $jclic->maxgrade;
+	$return->info = get_string("score", "jclic").": ".$jclic_summary->score."/".$maxgrade;
+    return $return;
 }
 
-/**
- * Prints a detailed representation of what a user has done with
- * a given particular instance of this module, for user activity reports.
- * 
- * @todo: implement
- *
- * @return string HTML
- */
 function jclic_user_complete($course, $user, $mod, $jclic) {
-    return '';
-}
+/// Print a detailed representation of what a  user has done with 
+/// a given particular instance of this module, for user activity reports.
 
-/**
- * Given a course and a time, this module should find recent activity
- * that has occurred in jclic activities and print it out.
- * Return true if there was output, or false is there was none.
- * 
- * @todo: implement
- *
- * @return boolean
- */
-function jclic_print_recent_activity($course, $viewfullnames, $timestart) {
-    return false;  //  True if anything was printed, otherwise false
-}
-
-/**
- * Returns all activity in jclics since a given time
- * 
- * @todo: implement
- *
- * @param array $activities sequentially indexed array of objects
- * @param int $index
- * @param int $timestart
- * @param int $courseid
- * @param int $cmid
- * @param int $userid defaults to 0
- * @param int $groupid defaults to 0
- * @return void adds items into $activities and increases $index
- */
-function jclic_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid=0, $groupid=0) {
-}
-
-/**
- * Prints single activity item prepared by {@see jclic_get_recent_mod_activity()}
- * 
- * @todo: implement
- * 
- * @return void
- */
-function jclic_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
-}
-
-/**
- * Function to be run periodically according to the moodle cron
- * This function searches for things that need to be done, such
- * as sending out mail, toggling flags etc ...
- *
- * @return boolean
- * @todo Finish documenting this function
- **/
-function jclic_cron () {
     return true;
 }
 
-/**
- * Returns an array of users who are participanting in this jclic
- *
- * Must return an array of users who are participants for a given instance
- * of jclic. Must include every user involved in the instance,
- * independient of his role (student, teacher, admin...). The returned
- * objects must contain at least id property.
- * See other modules as example.
- * 
- * @param int $jclicid ID of an instance of this module
- * @return boolean|array false if no participants, array of objects otherwise
- */
+function jclic_print_recent_activity($course, $isteacher, $timestart) {
+/// Given a course and a time, this module should find recent activity 
+/// that has occurred in jclic activities and print it out.
+/// Return true if there was output, or false is there was none.
+
+    global $CFG;
+
+    return false;  //  True if anything was printed, otherwise false 
+}
+
+function jclic_cron () {
+/// Function to be run periodically according to the moodle cron
+/// This function searches for things that need to be done, such 
+/// as sending out mail, toggling flags etc ... 
+
+    global $CFG;
+
+    return true;
+}
+
+function jclic_grades($jclicid, $userid=NULL) {
+	global $CFG;
+/// Must return an array of grades for a given instance of this module, 
+/// indexed by user.  It also returns a maximum allowed grade.
+///
+///    $return->grades = array of grades;
+///    $return->maxgrade = maximum allowed grade;
+///
+
+    if (!$jclic = get_record('jclic', 'id', $jclicid)) {
+        return NULL;
+    }
+
+    $return = new object();
+	$grades = array();
+	if ($userid==NULL){
+  	 if ($participants = jclic_get_participants($jclicid)){
+  		foreach ($participants as $participant) {
+				$grades = jclic_user_grades($grades, $jclic, $participant->userid);
+  		}
+   	 }
+	} else{
+		$grades = jclic_user_grades($grades, $jclic, $userid);
+	}
+  	$return->grades=$grades;
+  	$return->maxgrade=$jclic->maxgrade;
+   return $return;
+
+
+}
+
+function jclic_user_grades($grades, $jclic, $userid) {
+	$sessions_summary=jclic_get_sessions_summary($jclic->id, $userid);
+	if ($jclic->avaluation=='score'){
+		$grades[$userid]=$sessions_summary->score;				
+	}else{
+		$grades[$userid]=$sessions_summary->solved;
+	}
+	return $grades;
+}
+
+function jclic_update_gradebook($jclic_activity=NULL, $jclic=NULL){
+	global $CFG;
+
+    if (!function_exists('grade_update')) { //workaround for buggy PHP versions
+	    if (file_exists($CFG->libdir.'/gradelib.php')) include_once($CFG->libdir.'/gradelib.php');
+    }
+	
+    if (!function_exists('grade_update')) {
+	    return true;
+    }
+
+	if ($jclic_activity != NULL){
+	    if (!$jclic_session = get_record('jclic_sessions', 'session_id', $jclic_activity->session_id)) {
+	        return NULL;
+	    }
+	    if (!$jclic = get_record('jclic', 'id', $jclic_session->jclicid)) {
+	        return NULL;
+	    }
+	}
+	if ($jclic != NULL){
+		// Get the grades
+		$userid = (isset($jclic_session)?$jclic_session->user_id:null);
+		$jclic_grades = jclic_grades($jclic->id, $userid);
+		$grades = array();
+		foreach ($jclic_grades->grades as $k=>$v){
+			$grades[$k]->userid=$k;
+			$grades[$k]->rawgrade=$v;			
+		}
+		
+		// Get the params
+	    $params = array('itemname'=>$jclic->name);
+	    $params['gradetype'] = GRADE_TYPE_VALUE;
+	    if ($jclic->maxgrade==NULL) $jclic_grades->maxgrade = 0;
+	    $params['gradepass']  = $jclic_grades->maxgrade;
+	    $params['grademin']  = 0;
+
+		if ($jclic->avaluation=='score') $params['grademax']  = 100;
+		else $params['grademax']  = $jclic_grades->maxgrade;
+
+		grade_update('mod/jclic', $jclic->course, 'mod', 'jclic', $jclic->id, 0, $grades, $params);	
+		return true;
+	}
+	return false;
+}
+
+function jclic_get_students($cm, $course, $jclicid) {
+	global $CFG;
+	$version_moodle = (float)substr($CFG->release,0,3);
+	if ($version_moodle>=1.7){
+    $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+    $currentgroup = get_and_set_current_group($course, groupmode($course, $cm));
+    $users = get_users_by_capability($context, 'mod/jclic:submit', 'u.id, u.id', '', '', '', $currentgroup, '', false);
+    $dbstudents = array();
+    if (!empty($users)){
+        $select = 'SELECT u.id AS userid, u.firstname, u.lastname, u.picture ';
+        $sql = 'FROM '.$CFG->prefix.'user u '.
+               'LEFT JOIN '.$CFG->prefix.'jclic_sessions a ON u.id = a.user_id AND a.jclicid = '.$jclicid.' '.
+               'WHERE u.id IN ('.implode(',', array_keys($users)).') ';
+        $dbstudents=get_records_sql($select.$sql);
+    }
+  }else{
+  	$dbstudents = get_records_sql("SELECT DISTINCT us.userid, u.firstname, u.lastname
+  				       FROM {$CFG->prefix}user u,{$CFG->prefix}user_students us, {$CFG->prefix}jclic j
+  				       WHERE us.course=j.course AND j.id=$jclicid AND u.id=us.userid");
+  }
+  return $dbstudents;
+}
+
 function jclic_get_participants($jclicid) {
-    global $CFG, $DB;
+//Must return an array of user records (all data) who are participants
+//for a given instance of jclic. Must include every user involved
+//in the instance, independient of his role (student, teacher, admin...)
+//See other modules as example.
+
+    global $CFG;
 
     //Get students
-    $students = $DB->get_records_sql("SELECT DISTINCT u.id, u.id as userid
-                                 FROM {user} u,
-                                      {jclic_sessions} js
-                                 WHERE js.jclicid = ? and
-                                       u.id = js.user_id", array($jclicid));
+    $students = get_records_sql("SELECT DISTINCT u.id, u.id as userid
+                                 FROM {$CFG->prefix}user u,
+                                      {$CFG->prefix}jclic_sessions js
+                                 WHERE js.jclicid = '$jclicid' and
+                                       u.id = js.user_id");
     //Get teachers
-    $teachers = $DB->get_records_sql("SELECT DISTINCT u.id, u.id as userid
-                                 FROM {user} u,
-                                      {jclic_sessions} js
-                                 WHERE js.jclicid = ? and
-                                       u.id = js.user_id", array($jclicid));
+    $teachers = get_records_sql("SELECT DISTINCT u.id, u.id as userid
+                                 FROM {$CFG->prefix}user u,
+                                      {$CFG->prefix}jclic_sessions js
+                                 WHERE js.jclicid = '$jclicid' and
+                                       u.id = js.user_id");
 
     //Add teachers to students
     if ($teachers) {
@@ -402,410 +244,352 @@ function jclic_get_participants($jclicid) {
     return ($students);
 }
 
-/**
- * Returns all other caps used in the module
- *
- * @example return array('moodle/site:accessallgroups');
- * @return array
- */
-function jclic_get_extra_capabilities() {
-    return array('moodle/site:accessallgroups', 'moodle/site:viewfullnames', 'moodle/grade:managegradingforms');
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Gradebook API                                                              //
-////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Is a given scale used by the instance of jclic?
- *
- * This function returns if a scale is being used by one jclic
- * if it has support for grading and scales. Commented code should be
- * modified if necessary. See forum, glossary or journal modules
- * as reference.
- *
- * @param int $jclicid ID of an instance of this module
- * @return bool true if the scale is used by the given jclic instance
- */
-function jclic_scale_used($jclicid, $scaleid) {
-    global $DB;
-    
+function jclic_scale_used ($jclicid,$scaleid) {
+//This function returns if a scale is being used by one jclic
+//it it has support for grading and scales. Commented code should be
+//modified if necessary. See forum, glossary or journal modules
+//as reference.
+   
     $return = false;
-    $rec = $DB->get_record('jclic', array('id'=>$jclicid,'grade'=>-$scaleid));
-    if (!empty($rec) && !empty($scaleid)) {
-        $return = true;
-    }
+
     return $return;
 }
 
 /**
- * Checks if scale is being used by any instance of jclic.
+ * Checks if scale is being used by any instance of jclic
  *
- * This is used to find out if scale used anywhere.
- *
+ * This is used to find out if scale used anywhere
  * @param $scaleid int
- * @return boolean true if the scale is used by any jclic instance
+ * @return boolean
  */
 function jclic_scale_used_anywhere($scaleid) {
-    global $DB;
+   return false;
+}
 
-    if ($scaleid and $DB->record_exists('jclic', array('grade'=>-$scaleid))) {
-        return true;
+
+
+//////////////////////////////////////////////////////////////////////////////////////
+
+/**
+* Get user sessions
+*
+* @return array			[0=>session1,1=>session2...] where session1 is an array with keys: id,score,totaltime,starttime,done,solved,attempts. First sessions are newest.
+* @param object $jclicid	The jclic to get sessions
+* @param object $userid		The user id to get sessions
+*/
+function jclic_get_sessions($jclicid, $userid) {
+	global $CFG;
+
+  $sessions=array();
+	if($rs = get_records_sql("SELECT js.*
+                            FROM {$CFG->prefix}jclic j, {$CFG->prefix}jclic_sessions js 
+                            WHERE j.id=js.jclicid AND js.jclicid=$jclicid AND js.user_id=$userid
+                            ORDER BY js.session_datetime")){
+		$i=0;
+		foreach($rs as $session){
+			$activity=jclic_get_activity($session);
+			$activity->attempts=$i+1;
+			$sessions[$i++]=$activity;
+		}
+	}
+	return $sessions;
+}
+
+/**
+* Get session activities
+*
+* @return array			[0=>act0,1=>act1...] where act0 is an array with keys: activity_id,activity_name,num_actions,score,activity_solved,qualification, total_time. First activity are oldest.
+* @param string $session_id		The session id to get actitivies
+*/
+function jclic_get_activities($session_id) {
+	global $CFG;
+	
+	if($rs = get_records("jclic_activities", "session_id", "$session_id",'activity_id')){
+		$i=0;
+		foreach($rs as $activity){
+			$activities[$i++]=$activity;
+		}
+	}
+	return $activities;
+}
+
+/**
+* Get information about activities of specified session
+*
+* @return array			Array has these keys id,score,totaltime,starttime,done,solved,attempts
+* @param object $session	The session object
+*/
+function jclic_get_activity($session) {
+	global $CFG;
+	$activity->starttime=$session->session_datetime;
+	$activity->session_id=$session->session_id;
+	if($rs = get_record_sql("SELECT AVG(ja.qualification) as qualification, SUM(ja.total_time) as totaltime
+    				 FROM {$CFG->prefix}jclic_activities ja 
+				 WHERE ja.session_id='$session->session_id'")){
+		$activity->score=round($rs->qualification,0);
+		$activity->totaltime=round($rs->totaltime/60000,0)."' ".round(fmod($rs->totaltime,60000)/1000,0)."''";
+	}
+	if ($rs = get_record_sql("SELECT COUNT(*) as done
+                            FROM (SELECT DISTINCT ja.activity_name 
+                                  FROM  {$CFG->prefix}jclic_activities ja 
+                                  WHERE ja.session_id='$session->session_id') t")){
+    $activity->done=$rs->done;
+  }
+	if ($rs = get_record_sql("SELECT COUNT(*) as solved
+                            FROM (SELECT DISTINCT ja.activity_name 
+                                  FROM {$CFG->prefix}jclic_activities ja 
+                                  WHERE ja.session_id='$session->session_id' AND ja.activity_solved=1) t")){
+    $activity->solved=$rs->solved;
+	}
+
+	return $activity;
+}
+
+/**
+* Get user activity summary
+*
+* @return object	session object with score, totaltime, activities done and solved and attempts information
+*/
+function jclic_get_sessions_summary($jclicid, $userid) {
+	global $CFG;
+
+  $sessions_sumari = array('attempts'=>'','score'=>'','totaltime'=>'','starttime'=>'','done'=>'','solved'=>'');
+	if ($rs = get_record_sql("SELECT COUNT(*) AS attempts, AVG(t.qualification) AS qualification, SUM(t.totaltime) AS totaltime, MAX(t.starttime) AS starttime
+                            FROM (SELECT AVG(ja.qualification) AS qualification, SUM(ja.total_time) AS totaltime, MAX(js.session_datetime) AS starttime
+                                  FROM {$CFG->prefix}jclic j, {$CFG->prefix}jclic_sessions js, {$CFG->prefix}jclic_activities ja  
+                                  WHERE j.id=js.jclicid AND js.user_id=$userid AND js.jclicid=$jclicid AND ja.session_id=js.session_id
+                                  GROUP BY js.session_id) t")){
+		$sessions_summary->attempts=$rs->attempts;
+		$sessions_summary->score=round($rs->qualification,0);
+		$sessions_summary->totaltime=round($rs->totaltime/60000,0)."' ".round(fmod($rs->totaltime,60000)/1000,0)."''";
+		$sessions_summary->starttime=$rs->starttime;
+	}
+	
+	if ($rs = get_record_sql("SELECT COUNT(*) as done
+                            FROM (SELECT DISTINCT ja.activity_name 
+                                  FROM {$CFG->prefix}jclic j, {$CFG->prefix}jclic_sessions js, {$CFG->prefix}jclic_activities ja 
+                                  WHERE j.id=js.jclicid AND js.user_id=$userid AND js.jclicid=$jclicid AND js.session_id=ja.session_id)  t")){
+		$sessions_summary->done=$rs->done;
+	}
+	if ($rs = get_record_sql("SELECT COUNT(*) as solved
+                            FROM (SELECT DISTINCT ja.activity_name 
+                                  FROM {$CFG->prefix}jclic j, {$CFG->prefix}jclic_sessions js, {$CFG->prefix}jclic_activities ja 
+                                  WHERE j.id=js.jclicid AND js.user_id=$userid AND js.jclicid=$jclicid AND js.session_id=ja.session_id AND ja.activity_solved=1) t")){
+    $sessions_summary->solved=$rs->solved;
+	}
+	return $sessions_summary;
+}
+
+/**
+* Format time from milliseconds to string 
+*
+* @return string Formated string [x' y''], where x are the minutes and y are the seconds.	
+* @param int $time	The time (in ms)
+*/
+function jclic_time2str($time){
+  return round($time/60000,0)."' ".round(fmod($time,60000)/1000,0)."''";
+}
+
+/**
+* Print data in array as a row. Uses jclic_make_row function to get the string representation to print
+*
+* @param array $row Data
+* @param array $align Cell alignment
+* @param array $props Style, rowspan, colspan...
+* @param boolean $header If true the row will be printed as th; otherwise as td.
+*/
+function jclic_print_row($row, $align, $props=array(), $header=false){
+  echo jclic_make_row($row, $align, $props, $header);
+}
+
+function jclic_make_row($row, $row_align, $row_props=array(), $header=false){
+  $strrow = '';
+  $strtd = $header?'th':'td';
+  if (sizeof($row)>0){
+    $strrow.='<tr>';
+    $i=0;
+		foreach($row as $cell){
+		  $prop = ''; $align='';
+		  if ($row_props!='' && array_key_exists($i, $row_props) && $row_props[$i]!='') $prop = ' '.$row_props[$i].' ';
+		  if ($row_align!=''&& array_key_exists($i, $row_align) && $row_align[$i]!='') $align = ' align='.$row_align[$i].' ';
+      $strrow.='<'.$strtd.' '.($header?'':'class="cell"').$prop.$align.'>'.$cell.'</'.$strtd.'>';
+      $i++;	  
+    }
+    $strrow.='</tr>';
+  }  
+  return $strrow;
+}
+
+/**
+* Print a table data with all session activities 
+* 
+* @param string $session_id The session identifier
+*/
+function print_session_activities($session_id){
+  // Import language strings
+  $stractivity = get_string("activity", "jclic");
+  $strsolved = get_string("solved", "jclic");
+  $stractions = get_string("actions", "jclic");
+  $strtime = get_string("time", "jclic");
+  $strscore  = get_string("score", "jclic");
+  $stryes = get_string("yes");
+  $strno = get_string("no");
+  
+  // Print activities for each session
+  $activities=jclic_get_activities($session_id);    
+	if (sizeof($activities)>0){
+	  echo '<tr><td colspan="7"><div id="'.$session_id.'" style="display:none;visible:hidden">';
+	  echo '<table class="generaltable" align="center" border="0" cellpadding="5" cellspacing="1" width="80%"><tbody>';
+	  $subtable_align=array('left','center','center','center','center');
+	  jclic_print_row(array($stractivity, $strsolved, $stractions, $strtime, $strscore),$subtable_align,'',true);
+		foreach($activities as $activity){
+		  $subtable_props=array('', 'style="background-color:'.($activity->activity_solved?'#DFFFDF':'#FFDFDF').'"','','','');
+		  $act_percent=$activity->num_actions>0?round(($activity->score/$activity->num_actions)*100,0):0;
+		  jclic_print_row(array($activity->activity_name, ($activity->activity_solved?$stryes:$strno), $activity->score.'/'.$activity->num_actions.' ('.$act_percent.'%)', jclic_time2str($activity->total_time), $activity->qualification.'%'), $subtable_align, $subtable_props);
+		}
+		echo '</table></div></td></tr>';
+  }
+}
+
+function jclic_get_skins(){
+  return array('@default.xml' => 'default','@blue.xml' => 'blue','@orange.xml' => 'orange','@green.xml' => 'green','@simple.xml' => 'simple', '@mini.xml' => 'mini');
+} 
+
+
+/**
+* Get an array with the languages
+*
+* @return array   The array with each language.
+*/
+function jclic_get_languages(){
+    global $CFG;
+    $tmplanglist = get_list_of_languages();
+    $langlist = array();
+    foreach ($tmplanglist as $lang=>$langname) {
+        if (substr($lang, -5) == '_utf8') {   //Remove the _utf8 suffix from the lang to show
+            $lang = substr($lang, 0, -5);
+        }
+        $langlist[$lang]=$langname;
+    }
+    return $langlist;
+}
+
+
+/**
+* Get moodle server
+*
+* @return string                myserver.com:port
+*/
+function jclic_get_server() {
+    global $CFG;
+
+    if (!empty($CFG->wwwroot)) {
+        $url = parse_url($CFG->wwwroot);
+    }
+
+    if (!empty($url['host'])) {
+        $hostname = $url['host'];
+    } else if (!empty($_SERVER['SERVER_NAME'])) {
+        $hostname = $_SERVER['SERVER_NAME'];
+    } else if (!empty($_ENV['SERVER_NAME'])) {
+        $hostname = $_ENV['SERVER_NAME'];
+    } else if (!empty($_SERVER['HTTP_HOST'])) {
+        $hostname = $_SERVER['HTTP_HOST'];
+    } else if (!empty($_ENV['HTTP_HOST'])) {
+        $hostname = $_ENV['HTTP_HOST'];
     } else {
+        notify('Warning: could not find the name of this server!');
         return false;
     }
-}
 
-/**
- * Creates or updates grade item for the give jclic instance
- *
- * Needed by grade_update_mod_grades() in lib/gradelib.php
- *
- * @uses GRADE_TYPE_NONE
- * @uses GRADE_TYPE_VALUE
- * @uses GRADE_TYPE_SCALE
- * @param stdClass $jclic instance object with extra cmidnumber and modname property
- * @param mixed $grades optional array/object of grade(s); 'reset' means reset grades in gradebook
- * @return int 0 if ok
- */
-function jclic_grade_item_update(stdClass $jclic, $grades=NULL) {
-    global $CFG;
-    require_once($CFG->libdir.'/gradelib.php');
-
-    if (!isset($jclic->courseid)) {
-        $jclic->courseid = $jclic->course;
-    }
-
-    $params = array();
-    $params['itemname'] = clean_param($jclic->name, PARAM_NOTAGS);
-    $params['idnumber'] = $jclic->cmidnumber;
-    if ($jclic->grade > 0) {
-        $params['gradetype'] = GRADE_TYPE_VALUE;
-        $params['grademax']  = $jclic->grade;
-        $params['grademin']  = 0;
-
-    } else if ($jclic->grade < 0) {
-        $params['gradetype'] = GRADE_TYPE_SCALE;
-        $params['scaleid']   = -$jclic->grade;
-
-    } else {
-        $params['gradetype'] = GRADE_TYPE_NONE; // allow text comments only
-    }
-
-    if ($grades  === 'reset') {
-        $params['reset'] = true;
-        $grades = NULL;
-    }
-    
-    grade_update('mod/jclic', $jclic->courseid, 'mod', 'jclic', $jclic->id, 0, $grades, $params);
-
-    return true;
-}
-
-/**
- * Delete grade item for given jclic
- *
- * @global object
- * @param object $jclic object
- * @return object grade_item
- */
-function jclic_grade_item_delete($jclic) {
-    global $CFG;
-    require_once($CFG->libdir.'/gradelib.php');
-
-    return grade_update('mod/jclic', $jclic->course, 'mod', 'jclic', $jclic->id, 0, NULL, array('deleted'=>1));
-}
-
-/**
- * Return grade for given user or all users.
- *
- * @todo: implement userid=0 (all users)
- * @todo: optimize this function (to avoid call jclic_get_sessions_summary or update only mandatory info)
- * 
- * @param object $jclic object
- * @param int $userid optional user id, 0 means all users
- * @return array array of grades, false if none
- */
-function jclic_get_user_grades($jclic, $userid=0) {
-    global $CFG, $DB;
-    require_once($CFG->dirroot.'/mod/jclic/locallib.php');
-
-    // sanity check on $jclic->id
-    if (! isset($jclic->id)) {
-        return;
-    }
-    $sessions_summary = jclic_get_sessions_summary($jclic->id, $userid);
-    $grades[$userid]->userid = $userid;
-    $grades[$userid]->attempts = $sessions_summary->attempts;
-    $grades[$userid]->totaltime = $sessions_summary->totaltime;
-    $grades[$userid]->starttime = $sessions_summary->starttime;
-    $grades[$userid]->done = $sessions_summary->done;
-    $grades[$userid]->rawgrade = 0;
-    if ($jclic->avaluation=='score'){
-        $grades[$userid]->rawgrade = $sessions_summary->score;				
-    }else{
-        $grades[$userid]->rawgrade = $sessions_summary->solved;
-    }
-    return $grades;
-}
-
-/**
- * Update jclic grades in the gradebook
- *
- * Needed by grade_update_mod_grades() in lib/gradelib.php
- * 
- * @todo: Fix some problems (this function is not working when is called from beans.php)
- *
- * @param stdClass $jclic instance object with extra cmidnumber and modname property
- * @param int $userid update grade of specific user only, 0 means all participants
- * @param boolean $nullifnone return null if grade does not exist
- * @return void
- */
-function jclic_update_grades(stdClass $jclic, $userid = 0, $nullifnone=true) {
-    global $CFG, $DB;
-    require_once($CFG->libdir.'/gradelib.php');
-
-    if ($jclic->grade == 0) {
-        jclic_grade_item_update($jclic);
-
-    } else if ($grades = jclic_get_user_grades($jclic, $userid)) {
-        foreach($grades as $k=>$v) {
-            if ($v->rawgrade == -1) {
-                $grades[$k]->rawgrade = null;
-            }
+    if (!empty($url['port'])) {
+        $hostname .= ':'.$url['port'];
+    } else if (!empty($_SERVER['SERVER_PORT'])) {
+        if ($_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) {
+            $hostname .= ':'.$_SERVER['SERVER_PORT'];
         }
-        jclic_grade_item_update($jclic, $grades);
-
-    } else if ($userid and $nullifnone) {
-        $grade = new stdClass();
-        $grade->userid   = $userid;
-        $grade->rawgrade = NULL;
-        jclic_grade_item_update($jclic, $grade);
-        
-    } else {
-        jclic_grade_item_update($jclic);
     }
-}
 
-////////////////////////////////////////////////////////////////////////////////
-// File API                                                                   //
-////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Returns the lists of all browsable file areas within the given module context
- *
- * The file area 'intro' for the activity introduction field is added automatically
- * by {@link file_browser::get_file_info_context_module()}
- *
- * @param stdClass $course
- * @param stdClass $cm
- * @param stdClass $context
- * @return array of [(string)filearea] => (string)description
- */
-function jclic_get_file_areas($course, $cm, $context) {
-    return array(
-        'content'      => get_string('urledit',  'jclic')
-    );
+    return $hostname;
 }
 
 /**
- * File browsing support for jclic module content area.
- * @param object $browser
- * @param object $areas
- * @param object $course
- * @param object $cm
- * @param object $context
- * @param string $filearea
- * @param int $itemid
- * @param string $filepath
- * @param string $filename
- * @return object file_info instance or null if not found
- */
-function jclic_get_file_info($browser, $areas, $course, $cm, $context, $filearea, $itemid, $filepath, $filename) {
+* Get moodle path
+*
+* @return string                /path_to_moodle
+*/
+function jclic_get_path() {
     global $CFG;
 
-    if (!has_capability('moodle/course:managefiles', $context)) {
-        // students can not peak here!
-        return null;
+	$path = '/';
+    if (!empty($CFG->wwwroot)) {
+        $url = parse_url($CFG->wwwroot);
+		if (array_key_exists('path', $url)){
+			$path = $url['path'];			
+		}
     }
-
-    $fs = get_file_storage();
-
-    if ($filearea === 'content') {
-        $filepath = is_null($filepath) ? '/' : $filepath;
-        $filename = is_null($filename) ? '.' : $filename;
-
-        $urlbase = $CFG->wwwroot.'/pluginfile.php';
-        if (!$storedfile = $fs->get_file($context->id, 'mod_jclic', 'content', 0, $filepath, $filename)) {
-            if ($filepath === '/' and $filename === '.') {
-                $storedfile = new virtual_root_file($context->id, 'mod_jclic', 'content', 0);
-            } else {
-                // not found
-                return null;
-            }
-        }
-        return new file_info_stored($browser, $context, $storedfile, $urlbase, $areas[$filearea], false, true, false, false);
-    }
-    // note: jclic_intro handled in file_browser automatically
-
-    return null;
+    return $path;
 }
 
-
-/**
- * Serves the files from the jclic file areas
- *
- * @param stdClass $course
- * @param stdClass $cm
- * @param stdClass $context
- * @param string $filearea
- * @param array $args
- * @param bool $forcedownload
- * @return void this should never return to the caller
- */
-function jclic_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload) {
-    global $DB, $CFG;
-
-    if ($context->contextlevel != CONTEXT_MODULE) {
-        send_file_not_found();
-    }
-
-    require_login($course, true, $cm);
-    
-    if (!has_capability('mod/jclic:view', $context)) {
-        return false;
-    }
-
-    if ($filearea !== 'content') {
-        // intro is handled automatically in pluginfile.php
-        return false;
-    }
-
-    array_shift($args); // ignore revision - designed to prevent caching problems only
-
-    $fs = get_file_storage();
-    $relativepath = implode('/', $args);
-    $fullpath = rtrim("/$context->id/mod_jclic/$filearea/0/$relativepath", '/');
-    do {
-        if ($file = $fs->get_file_by_hash(sha1($fullpath))) {
-            break;
-        }
-/*            
-            $jclic = $DB->get_record('jclic', array('id'=>$cm->instance), 'id, legacyfiles', MUST_EXIST);
-            if (!$file = jcliclib_try_file_migration('/'.$relativepath, $cm->id, $cm->course, 'mod_jclic', 'content', 0)) {
-                return false;
-            }
-            // file migrate - update flag
-            $resource->legacyfileslast = time();
-            $DB->update_record('resource', $resource); 
- */
-    } while (false);
-
-    // finally send the file
-    send_stored_file($file, 86400, 0, $forcedownload);    
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Navigation API                                                             //
-////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Extends the global navigation tree by adding jclic nodes if there is a relevant content
- *
- * This can be called by an AJAX request so do not rely on $PAGE as it might not be set up properly.
- *
- * @param navigation_node $navref An object representing the navigation tree node of the jclic module instance
- * @param stdClass $course
- * @param stdClass $module
- * @param cm_info $cm
- */
-function jclic_extend_navigation(navigation_node $navref, stdclass $course, stdclass $module, cm_info $cm) {
-}
-
-/**
- * Extends the settings navigation with the jclic settings
- *
- * This function is called when the context for the page is a jclic module. This is not called by AJAX
- * so it is safe to rely on the $PAGE.
- *
- * @param settings_navigation $settingsnav {@link settings_navigation}
- * @param navigation_node $jclicnode {@link navigation_node}
- */
-function jclic_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $jclicnode=null) {
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Reset                                                                      //
-////////////////////////////////////////////////////////////////////////////////
-
-
-/**
- * Removes all grades from gradebook
- * @param int $courseid
- * @param string optional type
- */
-function jclic_reset_gradebook($courseid) {
-    global $CFG, $DB;
-
-    $params = array('courseid'=>$courseid);
-
-    $sql = "SELECT j.*, cm.idnumber as cmidnumber, j.course as courseid
-              FROM {jclic} j, {course_modules} cm, {modules} m
-             WHERE m.name='jclic' AND m.id=cm.module AND cm.instance=j.id AND j.course=:courseid ";
-
-    if ($jclics = $DB->get_records_sql($sql, $params)) {
-        foreach ($jclics as $jclic) {
-            jclic_grade_item_update($jclic, 'reset');
-        }
-    }
+if (!function_exists('get_coursemodule_from_id')) {
+	// Add this function for Moodle < 1.6
+	function get_coursemodule_from_id($modulename, $cmid, $courseid=0) {
+		global $CFG;
+		return get_record_sql("
+			SELECT 
+				cm.*, m.name, md.name as modname
+			FROM 
+				{$CFG->prefix}course_modules cm,
+				{$CFG->prefix}modules md,
+				{$CFG->prefix}$modulename m
+			WHERE 
+				".($courseid ? "cm.course = '$courseid' AND " : '')."
+				cm.id = '$cmid' AND
+				cm.instance = m.id AND
+				md.name = '$modulename' AND
+				md.id = cm.module
+		");
+	}
 }
 
 /**
  * This function is used by the reset_course_userdata function in moodlelib.
- * This function will remove all posts from the specified jclic
- * and clean up any related data.
+ * This function will remove all jclic sessions in the specified course.
  * @param $data the data submitted from the reset course.
  * @return array status array
  */
 function jclic_reset_userdata($data) {
-    global $CFG, $DB;
+    global $CFG;
+    require_once($CFG->libdir.'/filelib.php');
 
-    $componentstr = get_string('modulenameplural', 'choice');
     $status = array();
- 
     if (!empty($data->reset_jclic_deleteallsessions)) {
-        $params = array('courseid' => $data->courseid);
         $select = 'session_id IN'
-            . " (SELECT s.session_id FROM {jclic_sessions} s"
-            . " INNER JOIN {jclic} j ON s.jclicid = j.id"
-            . " WHERE j.course = :courseid)";
-        $DB->delete_records_select('jclic_activities', $select, $params);
+            . " (SELECT s.session_id FROM {$CFG->prefix}jclic_sessions s"
+            . " INNER JOIN {$CFG->prefix}jclic j ON s.jclicid = j.id"
+            . " WHERE j.course = {$data->courseid})";
+        delete_records_select('jclic_activities', $select);
 
         $select = 'jclicid IN'
-            . " (SELECT j.id FROM {jclic} j"
-            . " WHERE j.course = :courseid)";
-        $DB->delete_records_select('jclic_sessions', $select, $params);
-        
-        // remove all grades from gradebook
-        if (empty($data->reset_gradebook_grades)) {
-            jclic_reset_gradebook($data->courseid);
-        }
-        
-        $status[] = array('component'=>$componentstr, 'item'=>get_string('deleteallsessions', 'jclic'), 'error'=>false);
+            . " (SELECT j.id FROM {$CFG->prefix}jclic j"
+            . " WHERE j.course = {$data->courseid})";
+        delete_records_select('jclic_sessions', $select);
+
+        $status[] = array('component' => get_string('modulenameplural', 'jclic'),
+                          'item' => get_string('deleteallsessions', 'jclic'),
+                          'error' => false);
     }
- 
-   return $status;
+    return $status;
 }
 
 /**
- * Implementation of the function for printing the form elements that control
- * whether the course reset functionality affects the jclic.
+ * Called by course/reset.php
  * @param $mform form passed by reference
  */
 function jclic_reset_course_form_definition(&$mform) {
     $mform->addElement('header', 'jclicheader', get_string('modulenameplural', 'jclic'));
+
     $mform->addElement('checkbox', 'reset_jclic_deleteallsessions', get_string('deleteallsessions', 'jclic'));
-    
 }
 
 /**
@@ -814,3 +598,5 @@ function jclic_reset_course_form_definition(&$mform) {
 function jclic_reset_course_form_defaults($course) {
     return array('reset_jclic_deleteallsessions' => 1);
 }
+
+?>
