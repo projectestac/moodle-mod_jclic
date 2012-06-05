@@ -69,6 +69,7 @@ require_once($CFG->dirroot.'/calendar/lib.php');
  * @return mixed true if the feature is supported, null if unknown
  */
 function jclic_supports($feature) {
+
     switch($feature) {
         case FEATURE_GROUPS:                  return true;
 //        case FEATURE_GROUPINGS:               return true;
@@ -82,7 +83,9 @@ function jclic_supports($feature) {
         case FEATURE_BACKUP_MOODLE2:          return true;
 //        case FEATURE_SHOW_DESCRIPTION:        return true;
 //        case FEATURE_ADVANCED_GRADING:        return true;
-        default:                        return null;
+        default:                        
+          if (defined('FEATURE_SHOW_DESCRIPTION') && $feature==FEATURE_SHOW_DESCRIPTION) return true;
+          else return null;
     }
 }
 
