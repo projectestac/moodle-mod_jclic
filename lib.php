@@ -80,9 +80,11 @@ function jclic_supports($feature) {
 //        case FEATURE_GRADE_OUTCOMES:          return true;
 //        case FEATURE_RATE:                    return true;
         case FEATURE_BACKUP_MOODLE2:          return true;
-        case FEATURE_SHOW_DESCRIPTION:        return true;
+//        case FEATURE_SHOW_DESCRIPTION:        return true;
 //        case FEATURE_ADVANCED_GRADING:        return true;
-        default:                        return null;
+        default:                        
+          if (defined('FEATURE_SHOW_DESCRIPTION') && $feature==FEATURE_SHOW_DESCRIPTION) return true;
+          else return null;
     }
 }
 
