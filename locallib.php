@@ -581,7 +581,11 @@ require_once("$CFG->libdir/filelib.php");
         }
 
         // Create results table
-        $extrafields = get_extra_user_fields($context);
+        if (function_exists('get_extra_user_fields') ) {
+            $extrafields = get_extra_user_fields($context);
+        } else{
+            $extrafields = array();
+        }
         $tablecolumns = array_merge(array('picture', 'fullname'), $extrafields,
                 array('starttime', 'attempts', 'solveddone', 'totaltime', 'grade'));
 
