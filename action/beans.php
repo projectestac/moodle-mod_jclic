@@ -93,6 +93,7 @@ xml_parser_free($xml_parser);
 $jclic_log->xml=$my_xml;
 $jclic_log->time=time();
 insert_record("jclic_log", $jclic_log);*/
+//error_log($beans[0]['ID'].': '.$my_xml);
 //addEntry($beans[0]['ID'], $my_xml);
 
 switch($beans[0]['ID']){
@@ -154,7 +155,7 @@ switch($beans[0]['ID']){
 			if ($bean['ID']=='add activity'){
 				$jclic_activity->session_id=$bean['PARAMS']['session'];
 				$jclic_activity->activity_id=$bean['PARAMS']['num'];
-				$jclic_activity->activity_name=$bean['ACTIVITY']['name'];
+				$jclic_activity->activity_name=substr($bean['ACTIVITY']['name'], 0, 50);
 				$jclic_activity->num_actions=$bean['ACTIVITY']['actions'];
 				$jclic_activity->activity_solved=$bean['ACTIVITY']['solved']=='true'?1:0;
 				$jclic_activity->score=$bean['ACTIVITY']['score'];
