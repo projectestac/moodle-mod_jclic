@@ -90,7 +90,7 @@ class moodle1_mod_jclic_handler extends moodle1_mod_handler {
         // migrate jclic package file
         $this->fileman->filearea = 'content';
         $this->fileman->itemid   = 0;
-        if (!jclic_is_valid_external_url($data['url'])) {
+        if (!jclic_is_valid_external_url($data['url']) && (substr($data['url'], 0, strlen('http')) !== 'http') ) {
             // Migrate file
             $this->fileman->migrate_file('course_files/'.$data['url']);            
         }
