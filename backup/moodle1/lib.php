@@ -95,6 +95,8 @@ class moodle1_mod_jclic_handler extends moodle1_mod_handler {
             $this->fileman->migrate_file('course_files/'.$data['url']);            
         }
         
+        // To avoid problems if maxgrade is null
+        if ($data['maxgrade'] === NULL) $data['maxgrade'] = 100;
         // get grade value from maxgrade
         $data['grade'] = $data['maxgrade'];
         
