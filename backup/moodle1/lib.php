@@ -90,9 +90,13 @@ class moodle1_mod_jclic_handler extends moodle1_mod_handler {
         // migrate jclic package file
         $this->fileman->filearea = 'content';
         $this->fileman->itemid   = 0;
-        if (!jclic_is_valid_external_url($data['url']) && (substr($data['url'], 0, strlen('http')) !== 'http') ) {
+        if (!jclic_is_valid_external_url($data['url']) ) {
             // Migrate file
-            $this->fileman->migrate_file('course_files/'.$data['url']);            
+            try{
+                $this->fileman->migrate_file('course_files/'.$data['url']);            
+            } catch (Exception $e){
+                echo 'Caught exception: ',  $e->getMessage(), ' File: \'',$data['url'], '\' on JClic activity \''.$data['name'].'\' <br>';
+            }
         }
         
         // To avoid problems if maxgrade is null
