@@ -136,6 +136,7 @@ switch($beans[0]['ID']){
 
                 if (!$DB->get_record('jclic_users', array('user_id' => $beans[0]['PARAMS']['user'].'') )){
                     if ($user = $DB->get_record('user', array('id' => $beans[0]['PARAMS']['user'].''))){
+                        $jclic_user = new stdClass();
                         $jclic_user->user_id = $beans[0]['PARAMS']['user'];
                         $jclic_user->group_id = '1';
                         $jclic_user->user_name = $user->firstname.' '.$user->lastname;
@@ -153,6 +154,7 @@ switch($beans[0]['ID']){
                 $jclic_activity = null;
 		foreach ($beans as $bean){
 			if ($bean['ID']=='add activity'){
+                                $jclic_activity = new stdClass();
 				$jclic_activity->session_id=$bean['PARAMS']['session'];
 				$jclic_activity->activity_id=$bean['PARAMS']['num'];
 				$jclic_activity->activity_name=substr($bean['ACTIVITY']['name'], 0, 50);

@@ -413,6 +413,7 @@ require_once("$CFG->libdir/filelib.php");
     function jclic_get_activity($session) {
         global $CFG, $DB;
 
+        $activity = new stdClass();
         $activity->starttime=$session->session_datetime;
         $activity->session_id=$session->session_id;
         if($rs = $DB->get_record_sql("SELECT AVG(ja.qualification) as qualification, SUM(ja.total_time) as totaltime
@@ -492,7 +493,13 @@ require_once("$CFG->libdir/filelib.php");
         global $CFG, $DB;
 
         jclic_normalize_date();
-        $sessions_sumari = array('attempts'=>'','score'=>'','totaltime'=>'','starttime'=>'','done'=>'','solved'=>'');
+        $sessions_summary = new stdClass(); 
+        $sessions_summary->attempts = '';
+        $sessions_summary->score = '';
+        $sessions_summary->totaltime = '';
+        $sessions_summary->starttime = '';
+        $sessions_summary->done = '';
+        $sessions_summary->solved = '';
         
         if ($rs = $DB->get_record_sql("SELECT COUNT(*) AS attempts, AVG(t.qualification) AS qualification, SUM(t.totaltime) AS totaltime, MAX(t.starttime) AS starttime
                             FROM (SELECT AVG(ja.qualification) AS qualification, SUM(ja.total_time) AS totaltime, MAX(js.session_datetime) AS starttime
