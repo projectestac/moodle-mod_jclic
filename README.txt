@@ -61,7 +61,7 @@ JClic community support:
 
 
 Translations:
-  Basque:
+   Basque:
      Abel Camacho  - didaktika@santurtzieus.com
      Pedro Lonbide - zuzen@santurtzieus.com
      
@@ -73,7 +73,10 @@ Translations:
      
    Hebrew:
      Nadav Kavalerchik - nadavkav@gmail.com
-   
+ 
+   Brazilian
+     Kleber Calegario Batista - klebercal@gmail.com
+
 
 Special Thanks:
    Sandra Fernandez 
