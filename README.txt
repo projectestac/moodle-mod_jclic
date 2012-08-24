@@ -65,6 +65,9 @@ Translations:
      Abel Camacho  - didaktika@santurtzieus.com
      Pedro Lonbide - zuzen@santurtzieus.com
      
+   Brazilian
+     Kleber Calegario Batista - klebercal@gmail.com
+
    Greek:
      Yannis Kaskamanidis - kiolalis@gmail.com
      
@@ -74,9 +77,6 @@ Translations:
    Hebrew:
      Nadav Kavalerchik - nadavkav@gmail.com
  
-   Brazilian
-     Kleber Calegario Batista - klebercal@gmail.com
-
 
 Special Thanks:
    Sandra Fernandez 
