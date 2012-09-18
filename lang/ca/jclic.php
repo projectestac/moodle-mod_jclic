@@ -121,3 +121,6 @@ $string['urledit_help'] = 'El fitxer ".jclic.zip" que conté l\'activitat JClic.
 $string['jclic:view'] = 'Visualitza JClic';
 $string['jclic:submit'] = 'Envia JClic';
 $string['jclic:grade'] = 'Avalua JClic';
+
+/* Revision Moodle 2.3 */
+$string['jclic:addinstance'] = 'Afegeix una activitat JClic';
