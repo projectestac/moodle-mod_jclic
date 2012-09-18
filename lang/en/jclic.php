@@ -121,3 +121,6 @@ $string['urledit_help'] = 'The "jclic.zip" file where you will find the JClic ac
 $string['jclic:view'] = 'View JClic';
 $string['jclic:submit'] = 'Submit JClic';
 $string['jclic:grade'] = 'Grade JClic';
+
+/* Revision Moodle 2.3 */
+$string['jclic:addinstance'] = 'Add JClic';
