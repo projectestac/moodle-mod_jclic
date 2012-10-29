@@ -3,11 +3,16 @@ Release notes for JClic Module for Moodle (https://projectes.lafarga.cat/project
 More information on each of the fixes can be found in the project 
 development home at https://projectes.lafarga.cat/projects/jclicmoodle
 
+Changes in progress
+---------------------------------------------------------------------------------------
+- Updated Euskara translation (downloaded from AMOS) 
+- Reviewed English translation (thanks to German Valero!)
+
+
 Changes in 0.2.2 (2012/08/24)
 ---------------------------------------------------------------------------------------
 - Added Brazilian translation
 - Added Galician translation
-- Reviewed English translation (thanks to German Valero!)
 - Fixed some bugs related with importation from Moodle 1.9
 - Solved some 'Strict standards' warnings
 - Adapted code for Moodle 2.3 (like addinstance capability)
