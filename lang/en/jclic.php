@@ -33,7 +33,7 @@ defined('MOODLE_INTERNAL') || die();
 $string['activitydone'] = 'Activities done';
 $string['activitysolved'] = 'Activities completed successfully';
 $string['attempts'] = 'Attempts';
-$string['avaluation'] = 'Evaluation criteria';
+$string['avaluation'] = 'Avaluation criteria';
 $string['avaluation_score'] = 'Achieving this global score';
 $string['avaluation_solved'] = 'Solving this number of different activities';
 $string['description'] = 'Description';
