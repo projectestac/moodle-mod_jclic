@@ -7,6 +7,8 @@ Changes in progress
 ---------------------------------------------------------------------------------------
 - Updated Euskara translation (downloaded from AMOS) 
 - Reviewed English translation (thanks to German Valero!)
+- Reviewed some SQL to avoid Postgre problem with userid
+- Fixed bug with users reporting (only first page was showed)
 
 
 Changes in 0.2.2 (2012/08/24)
