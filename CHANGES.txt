@@ -5,6 +5,7 @@ development home at https://projectes.lafarga.cat/projects/jclicmoodle
 
 Changes in progress
 ---------------------------------------------------------------------------------------
+- Fixed bug when deleting jclic activities and enableajax is enabled
 
 
 Changes in 0.2.3 (2013/02/22)
