@@ -3,6 +3,14 @@ Release notes for JClic Module for Moodle (https://projectes.lafarga.cat/project
 More information on each of the fixes can be found in the project
 development home at https://projectes.lafarga.cat/projects/jclicmoodle
 
+Changes in progress
+---------------------------------------------------------------------------------------
+- Solved error with activities that lasts more than 99 seconds saving total_time in seconds instead of miliseconds. Now the limit is about 27 hours per activity
+- Updated Jclicplugin.js to the last version
+- Use the jclicplugin.js from the clic server or the configured one
+- Reviewed permissions for lang/pt_br/jclic.php file
+
+
 Changes in 0.2.3 - 2013022200 (2013/09/19)
 ---------------------------------------------------------------------------------------
 - Fixed bug when deleting jclic activities and enableajax is enabled
