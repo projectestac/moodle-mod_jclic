@@ -240,7 +240,7 @@ require_once("$CFG->libdir/filelib.php");
         $urlbase = "{$CFG->wwwroot}/mod/jclic/";
 
 /*        $context = context_module::instance($this->cm->id);
-        if (has_capability('mod/jclic:grade', $context)) {
+        if (has_capability('moodle/grade:viewall', $context)) {
             if ($allgroups and has_capability('moodle/site:accessallgroups', $context)) {
                 $group = 0;
             } else {

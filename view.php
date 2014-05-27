@@ -75,7 +75,7 @@ jclic_view_header($jclic, $cm, $course);
 jclic_view_intro($jclic, $cm);
 
 $action = optional_param('action', '', PARAM_TEXT);
-if (has_capability('mod/jclic:grade', $context, $USER->id, false)){
+if (has_capability('moodle/grade:viewall', $context, $USER->id)){
     if ($action == 'preview'){
         jclic_view_applet($jclic, $context, true);
     } else{
