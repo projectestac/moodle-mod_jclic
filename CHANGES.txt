@@ -3,7 +3,7 @@ Release notes for JClic Module for Moodle (https://projectes.lafarga.cat/project
 More information on each of the fixes can be found in the project
 development home at https://projectes.lafarga.cat/projects/jclicmoodle
 
-Changes in 0.3.0 - 2014052901 (2014/11/07)
+Changes in 0.2.4 - 2014052901 (2014/11/07)
 ---------------------------------------------------------------------------------------
 - Adapted module to Moodle 2.6
 - Solved error with activities that lasts more than 99 seconds saving total_time in seconds instead of miliseconds. Now the limit is about 27 hours per activity
