@@ -245,11 +245,11 @@ if (!empty($users)) {
             $table->pagesize($perpage, $countusers);
             $table->print_html();  // Print the whole table
         } else {
-            echo $OUTPUT->notification(get_string('msg_nosessions', 'jclic'));
+            echo $OUTPUT->notification(get_string('msg_nosessions', 'jclic'), 'notifymessage');
         }
     }
 } else {
-    echo $OUTPUT->notification(get_string('msg_nosessions', 'jclic'));
+    echo $OUTPUT->notification(get_string('msg_nosessions', 'jclic'), 'notifymessage');
 }
 
 echo $OUTPUT->footer();
