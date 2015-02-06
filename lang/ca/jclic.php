@@ -125,7 +125,7 @@ $string['jclic:grade'] = 'Avalua JClic';
 /* Revision Moodle 2.3 */
 $string['jclic:addinstance'] = 'Afegeix una activitat JClic';
 $string['pluginjs'] = 'URL del fitxer JClic plugin js';
-$string['pluginjs_help'] = 'URL on es cercarà el fitxer jclicplugin.js necessàri per funcionar. Si està buit, es farà servir el fitxer del mòdul.';
+$string['pluginjs_help'] = 'URL on es cercarà el fitxer jclicplugin.js necessari per funcionar. Si està buit, es farà servir el fitxer del mòdul.';
 
 /* Revision Moodle 2.6 */
 $string['event_course_module_viewed'] = 'S\'ha visualitzat el mòdul del curs.';
