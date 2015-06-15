@@ -3,6 +3,13 @@ Release notes for JClic Module for Moodle (https://projectes.lafarga.cat/project
 More information on each of the fixes can be found in the project
 development home at https://projectes.lafarga.cat/projects/jclicmoodle
 
+Changes in 0.2.6 - 2015061500 (2015/06/15)
+---------------------------------------------------------------------------------------
+ - Changed HTTP_RAW_POST_DATA by php://input
+ - Requirements of Moodle 2.7 or greater
+ - Revert Jarbase to http
+ - Settings moved to config_plugins
+
 Changes in 0.2.5 - 2015031300 (2015/03/13)
 ---------------------------------------------------------------------------------------
 - Adapt module to Moodle 2.7 and 2.8
