@@ -526,6 +526,7 @@ function jclic_view_applet($jclic, $context, $ispreview = false) {
         } else {
             $PAGE->requires->js('/mod/jclic/jclicplugin.js');
         }
+
         $PAGE->requires->js('/mod/jclic/jclic.js');
         $params = get_object_vars($jclic);
         $params['jclic_url'] = jclic_get_url($jclic, $context);
@@ -541,6 +542,14 @@ function jclic_view_applet($jclic, $context, $ispreview = false) {
         } else {
             $params['jclic_protocol'] = 'http';
         }
+
+        if (isset($config->html5js) && !empty($config->html5js)) {
+            echo '<script type="text/javascript" src="'.$config->html5js.'"></script>';
+            $params['html5enabled'] = true;
+        } else {
+            $params['html5enabled'] = false;
+        }
+
         $PAGE->requires->js_init_call('M.mod_jclic.init', array($params));
     } else {
         echo $OUTPUT->box(get_string('msg_noattempts', 'jclic'), 'generalbox boxaligncenter');
@@ -636,7 +645,7 @@ function jclic_set_mainfile($data) {
 }
 
 function jclic_is_valid_external_url($url){
-    return preg_match('/(http:\/\/|https:\/\/|www).*\/*.jclic.zip(\?[a-z+&\$_.-][a-z0-9;:@&%=+\/\$_.-]*)?$/i', $url);
+    return preg_match('/(http:\/\/|https:\/\/|www).*\/*.jclic(.zip)?(\?[a-z+&\$_.-][a-z0-9;:@&%=+\/\$_.-]*)?$/i', $url);
 }
 
 function jclic_is_valid_file($filename){

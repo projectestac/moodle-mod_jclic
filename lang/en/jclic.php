@@ -122,7 +122,8 @@ $string['jclic:grade'] = 'Grade JClic';
 $string['jclic:addinstance'] = 'Add JClic';
 $string['pluginjs'] = 'JClic plugin js file url';
 $string['pluginjs_help'] = 'URL where to find jclicplugin.js needed to work. If empty, it will use the file on the module.';
-
+$string['html5js'] = 'JClic plugin js for HTML5 version file url';
+$string['html5js_help'] = 'URL where to find jclic.unified.js needed to work. If empty, HTML5 version will be disabled';
 
 /* Revision Moodle 2.6 */
 $string['event_course_module_viewed'] = 'Course module viewed';
