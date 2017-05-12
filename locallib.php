@@ -819,7 +819,7 @@ function jclic_get_url($jclic, $context, $jclicfile=false){
                 }
             }
         } else {
-            // Get .jclic.zip file
+            // Get JClic file
             $files = $fs->get_area_files($context->id, 'mod_jclic', $jclic->get_filearea(), 0, 'sortorder DESC, id ASC', false);
             if (count($files) < 1) {
                 //resource_print_filenotfound($resource, $cm, $course);

@@ -6,6 +6,7 @@ development home at https://github.com/projectestac/moodle-mod_jclic
 Changes in progress
 ---------------------------------------------------------------------------------------
 - Changed default report to detailed
+- Redesigned edit form parameters
 
 Changes in 3.0.1 - 2016061300 (2016/09/28)
 ---------------------------------------------------------------------------------------
