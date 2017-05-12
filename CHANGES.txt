@@ -7,6 +7,7 @@ Changes in progress
 ---------------------------------------------------------------------------------------
 - Changed default report to detailed
 - Redesigned edit form parameters
+- Replaced .jclic.zip references in some translations
 
 Changes in 3.0.1 - 2016061300 (2016/09/28)
 ---------------------------------------------------------------------------------------
