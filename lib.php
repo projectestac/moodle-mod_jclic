@@ -46,7 +46,7 @@ define('JCLIC_ACTIVITY_TYPE_HTML5', 1);
 
 
 /** Include eventslib.php */
-require_once($CFG->libdir.'/eventslib.php');
+// require_once($CFG->libdir.'/eventslib.php');
 /** Include formslib.php */
 require_once($CFG->libdir.'/formslib.php');
 /** Include calendar/lib.php */
