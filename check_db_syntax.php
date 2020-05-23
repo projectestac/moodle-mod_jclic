@@ -453,5 +453,3 @@ if (isset($_SERVER['REMOTE_ADDR'])) {
    /// Arrived hed, no false positives found for that file/$text
        return false;
     }
-
-?>
