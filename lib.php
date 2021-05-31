@@ -594,17 +594,21 @@ function jclic_extend_settings_navigation(settings_navigation $settingsnav, navi
                 new pix_icon('i/preview', ''));
         $jclicnode->add_node($node, $beforekey);
 
-        $url = new moodle_url('/mod/jclic/report.php',
-                array('id' => $PAGE->cm->id, 'mode'=> 'normal'));
-        $reportnode = $jclicnode->add_node(navigation_node::create(get_string('results', 'jclic'), $url,
+        $url_normal = null;
+        $url_details = null;
+        if (!empty($PAGE->url->param('mode')) && $PAGE->url->param('mode') == 'details') {
+            $url_normal = new moodle_url('/mod/jclic/report.php', array('id' => $PAGE->cm->id, 'mode'=> 'normal'));
+        } else {
+            $url_details = new moodle_url('/mod/jclic/report.php', array('id' => $PAGE->cm->id, 'mode'=> 'details'));
+        }
+
+        $reportnode = $jclicnode->add_node(navigation_node::create(get_string('results', 'jclic'), $url_normal,
                 navigation_node::TYPE_SETTING,
                 null, null, new pix_icon('i/report', '')), $beforekey);
-        $reportnode->add_node(navigation_node::create(get_string('report_normal', 'jclic'), $url,
+        $reportnode->add_node(navigation_node::create(get_string('report_normal', 'jclic'), $url_normal,
                 navigation_node::TYPE_SETTING,
                 null, null, new pix_icon('i/report', '')));
-        $url = new moodle_url('/mod/jclic/report.php',
-                array('id' => $PAGE->cm->id, 'mode'=> 'details'));
-        $reportnode->add_node(navigation_node::create(get_string('report_details', 'jclic'), $url,
+        $reportnode->add_node(navigation_node::create(get_string('report_details', 'jclic'), $url_details,
                 navigation_node::TYPE_SETTING,
                 null, null, new pix_icon('i/report', '')));
     }
