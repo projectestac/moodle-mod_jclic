@@ -23,6 +23,7 @@
  */
 
 namespace mod_jclic\event;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
