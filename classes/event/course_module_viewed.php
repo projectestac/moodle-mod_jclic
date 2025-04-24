@@ -23,6 +23,7 @@
  */
 
 namespace mod_jclic\event;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -35,68 +36,17 @@ class course_module_viewed extends \core\event\course_module_viewed {
      *
      * @return void
      */
-    protected function init() {
-        $this->data['objecttable'] = 'jclic';
+    protected function init(): void {
         $this->data['crud'] = 'r';
+        $this->data['objecttable'] = 'jclic';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
     }
 
-    // TODO: Delete after 2.8 upgrade
-
     /**
-     * Returns description of what happened.
-     *
-     * @return string
+     * Get objectid mapping
      */
-    public function get_description() {
-        return 'User with id ' . $this->userid . ' viewed jclic activity with instance id ' . $this->objectid;
+    public static function get_objectid_mapping(): array {
+        return ['db' => 'jclic', 'restore' => 'jclic'];
     }
 
-    /**
-     * Return the legacy event log data.
-     *
-     * @return array|null
-     */
-    protected function get_legacy_logdata() {
-        return [
-            $this->courseid,
-            'jclic',
-            'view',
-            'view.php?id=' . $this->context->instanceid,
-            $this->objectid,
-            $this->context->instanceid,
-        ];
-    }
-
-    /**
-     * Return localised event name.
-     *
-     * @throws \coding_exception
-     * @return string
-     */
-    public static function get_name() {
-        return get_string('event_course_module_viewed', 'mod_jclic');
-    }
-
-    /**
-     * Get URL related to the action.
-     *
-     * @throws \moodle_exception
-     * @return \moodle_url
-     */
-    public function get_url() {
-        return new \moodle_url('/mod/jclic/view.php', ['id' => $this->contextinstanceid]);
-    }
-
-    /**
-     * Custom validation.
-     *
-     * @throws \coding_exception
-     * @return void
-     */
-    protected function validate_data() {
-        // Hack to please the parent class. 'view' was the key used in old add_to_log().
-        $this->data['other']['content'] = 'view';
-        parent::validate_data();
-    }
 }
