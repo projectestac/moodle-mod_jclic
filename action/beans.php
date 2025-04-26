@@ -110,7 +110,7 @@ switch ($beans[0]['ID']) {
                 $query = 'SELECT maxgrade
                           FROM {jclic} j
                           LEFT JOIN {jclic_sessions} js ON js.jclicid = j.id
-                          WHERE js.session_id='. (int)$bean['PARAMS']['session'];
+                          WHERE js.session_id=\''. $bean['PARAMS']['session'] .'\'';
                 $maxgrade = ($rs = $DB->get_record_sql($query)) ? (int)$rs->maxgrade : 0;
 
                 if ($maxgrade > 0) {
@@ -127,7 +127,7 @@ switch ($beans[0]['ID']) {
                 $jclic_activity->activity_solved = $bean['ACTIVITY']['solved'] == 'true' ? 1 : 0;
                 $jclic_activity->score = $bean['ACTIVITY']['score'];
                 $jclic_activity->grade = $jclic_activity->score;
-                $jclic_activity->qualification = $scaled_qualification;
+                $jclic_activity->qualification = round($scaled_qualification);
                 $jclic_activity->total_time = getSeconds($bean['ACTIVITY']['time']);
                 $DB->insert_record('jclic_activities', $jclic_activity);
             }

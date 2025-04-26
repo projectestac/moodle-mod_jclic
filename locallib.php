@@ -1149,7 +1149,7 @@ function jclic_get_activity($session) {
  *
  * @param string $session_id The session identifier
  */
-function jclic_get_session_activities_html($session_id) {
+function jclic_get_session_activities_html($session_id, $strpercent) {
     $table_html = '';
 
     // Import language strings
@@ -1177,7 +1177,7 @@ function jclic_get_session_activities_html($session_id) {
                 $activity->activity_name,
                 ($activity->activity_solved ? $stryes : $strno),
                 $activity->score . '/' . $activity->num_actions . ' (' . $act_percent . '%)',
-                jclic_time2str($activity->total_time), $activity->qualification . '%',
+                jclic_time2str($activity->total_time), $activity->qualification . $strpercent,
             ];
             $table->data[] = $row;
         }
