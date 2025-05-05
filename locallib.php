@@ -1123,8 +1123,8 @@ function jclic_get_activity($session) {
     if ($rs = $DB->get_record_sql("SELECT AVG(ja.qualification) AS qualification, SUM(ja.total_time) AS totaltime
                                        FROM {jclic_activities} ja
                                        WHERE ja.session_id='$session->session_id'")) {
-        $activity->score = round($rs->qualification, 0);
-        $activity->totaltime = jclic_format_time($rs->totaltime);
+        $activity->score = round($rs->qualification ?? 0);
+        $activity->totaltime = jclic_format_time($rs->totaltime ?? 0);
     }
 
     if ($rs = $DB->get_record_sql("SELECT COUNT(*) AS done
@@ -1193,7 +1193,7 @@ function jclic_get_session_activities_html($session_id, $strpercent) {
  *
  * @param int $time time (in milliseconds) to format
  */
-function jclic_format_time($time) {
+function jclic_format_time(int $time): string {
     return floor($time / 60) . "' " . round(fmod($time, 60)) . "''";
 }
 
@@ -1224,8 +1224,8 @@ function jclic_get_sessions_summary($jclicid, $userid) {
                                              WHERE j.id=js.jclicid AND js.user_id='$userid' AND js.jclicid=$jclicid AND ja.session_id=js.session_id
                                              GROUP BY js.session_id) t")) {
         $sessions_summary->attempts = $rs->attempts;
-        $sessions_summary->score = round($rs->qualification, 0);
-        $sessions_summary->totaltime = jclic_format_time($rs->totaltime);
+        $sessions_summary->score = round($rs->qualification ?? 0);
+        $sessions_summary->totaltime = jclic_format_time($rs->totaltime ?? 0);
         $sessions_summary->starttime = $rs->starttime;
     }
 
