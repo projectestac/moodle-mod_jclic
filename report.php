@@ -114,7 +114,7 @@ $tableheaders = array_merge(
         get_string('attempts', 'jclic'),
         get_string('solveddone', 'jclic'),
         get_string('totaltime', 'jclic'),
-        get_string('grade', 'grades'),
+        get_string('grade', 'jclic'),
     ]);
 
 require_once $CFG->libdir . '/tablelib.php';
