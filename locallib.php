@@ -1123,7 +1123,7 @@ function jclic_get_activity($session) {
     if ($rs = $DB->get_record_sql("SELECT AVG(ja.qualification) AS qualification, SUM(ja.total_time) AS totaltime
                                        FROM {jclic_activities} ja
                                        WHERE ja.session_id='$session->session_id'")) {
-        $activity->score = round($rs->qualification ?? 0);
+        $activity->score = round($rs->qualification ?? 0, 2);
         $activity->totaltime = jclic_format_time($rs->totaltime ?? 0);
     }
 
@@ -1170,7 +1170,7 @@ function jclic_get_session_activities_html($session_id, $strpercent) {
         $table->head = [$stractivity, $strsolved, $stractions, $strtime, $strscore];
 
         foreach ($activities as $activity) {
-            $act_percent = $activity->num_actions > 0 ? round(($activity->score / $activity->num_actions) * 100, 0) : 0;
+            $act_percent = $activity->num_actions > 0 ? round(($activity->score / $activity->num_actions) * 100) : 0;
             $row = new html_table_row();
             $row->attributes = ['class' => ($activity->activity_solved ? 'jclic-activity-solved' : 'jclic-activity-unsolved')];
             $row->cells = [
@@ -1224,7 +1224,7 @@ function jclic_get_sessions_summary($jclicid, $userid) {
                                              WHERE j.id=js.jclicid AND js.user_id='$userid' AND js.jclicid=$jclicid AND ja.session_id=js.session_id
                                              GROUP BY js.session_id) t")) {
         $sessions_summary->attempts = $rs->attempts;
-        $sessions_summary->score = round($rs->qualification ?? 0);
+        $sessions_summary->score = round($rs->qualification ?? 0, 2);
         $sessions_summary->totaltime = jclic_format_time($rs->totaltime ?? 0);
         $sessions_summary->starttime = $rs->starttime;
     }
@@ -1253,7 +1253,7 @@ function jclic_get_sessions_summary($jclicid, $userid) {
  * @param int $time The time (in seconds)
  */
 function jclic_time2str($time) {
-    return floor($time / 60) . "' " . round(fmod($time, 60), 0) . "''";
+    return floor($time / 60) . "' " . round(fmod($time, 60)) . "''";
 }
 
 /**
