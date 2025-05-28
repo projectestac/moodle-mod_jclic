@@ -31,7 +31,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025042700;      // The current module version (Date: YYYYMMDDXX)
+$plugin->version   = 2025052800;      // The current module version (Date: YYYYMMDDXX)
 $plugin->requires  = 2022041900;      // Requires this Moodle version (4.0)
 $plugin->cron      = 0;               // Period for cron to check this module (secs)
 $plugin->component = 'mod_jclic';     // To check on upgrade, that module sits in correct place
